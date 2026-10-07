@@ -86,3 +86,38 @@ export async function uploadResume(candidateId: number, file: File): Promise<voi
   });
   if (!response.ok) throw new Error("Could not upload resume");
 }
+
+
+export type Application = {
+  id: number;
+  candidate_id: number;
+  job_id: number;
+  status: "saved" | "applied" | "interview" | "rejected" | "offer";
+  notes: string;
+  applied_at: string | null;
+  updated_at: string;
+};
+
+export async function saveJob(candidateId: number, jobId: number): Promise<void> {
+  const response = await fetch(`${API_URL}/tracking/saved`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ candidate_id: candidateId, job_id: jobId }),
+  });
+  if (!response.ok) throw new Error("Could not save job");
+}
+
+export async function createApplication(candidateId: number, jobId: number): Promise<void> {
+  const response = await fetch(`${API_URL}/tracking/applications`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ candidate_id: candidateId, job_id: jobId, status: "applied" }),
+  });
+  if (!response.ok) throw new Error("Could not track application");
+}
+
+export async function getApplications(candidateId: number): Promise<Application[]> {
+  const response = await fetch(`${API_URL}/tracking/applications/${candidateId}`, { cache: "no-store" });
+  if (!response.ok) throw new Error("Could not load applications");
+  return response.json();
+}
