@@ -159,6 +159,13 @@ export async function updateApplication(
   });
 }
 
+export async function getAlert(candidateId: number): Promise<JobAlert | null> {
+  const response = await fetch(`${API_URL}/alerts/${candidateId}`, { cache: "no-store" });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error("Could not load alert");
+  return response.json();
+}
+
 export async function createOrUpdateAlert(candidateId: number, minimumScore: number): Promise<JobAlert> {
   return request<JobAlert>(`${API_URL}/alerts`, {
     method: "POST",
