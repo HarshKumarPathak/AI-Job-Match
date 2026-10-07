@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 from app.domain.candidate import CandidateProfile
 from app.domain.job import Job
 
@@ -16,6 +19,13 @@ def _normalize(values: set[str]) -> set[str]:
     return {value.strip().lower() for value in values if value.strip()}
 
 
+def _text_similarity(candidate_text: str, job_text: str) -> float:
+    if not candidate_text.strip() or not job_text.strip():
+        return 0.0
+    matrix = TfidfVectorizer(stop_words="english").fit_transform([candidate_text, job_text])
+    return float(cosine_similarity(matrix[0:1], matrix[1:2])[0, 0])
+
+
 def explain_match(candidate: CandidateProfile, job: Job) -> MatchResult:
     candidate_skills = _normalize(candidate.skills)
     job_skills = _normalize(job.skills)
@@ -24,27 +34,33 @@ def explain_match(candidate: CandidateProfile, job: Job) -> MatchResult:
     missing = sorted(job_skills - candidate_skills)
 
     skill_score = len(matched) / len(job_skills) if job_skills else 0.0
+    text_score = _text_similarity(
+        candidate.resume_text,
+        f"{job.title} {job.description}",
+    )
 
     role_score = 0.0
     if candidate.preferred_roles:
         title = job.title.lower()
-        role_score = max(
-            (1.0 if role.lower() in title else 0.0)
-            for role in candidate.preferred_roles
-        )
+        role_score = max(1.0 if role.lower() in title else 0.0 for role in candidate.preferred_roles)
 
     location_score = 0.0
     if candidate.preferred_locations and job.location:
         location_score = max(
-            (1.0 if location.lower() in job.location.lower() else 0.0)
+            1.0 if location.lower() in job.location.lower() else 0.0
             for location in candidate.preferred_locations
         )
 
-    score = round((skill_score * 0.70 + role_score * 0.20 + location_score * 0.10) * 100, 2)
+    score = round(
+        (skill_score * 0.55 + text_score * 0.20 + role_score * 0.15 + location_score * 0.10) * 100,
+        2,
+    )
 
     reasons = []
     if matched:
         reasons.append(f"{len(matched)} required skills matched")
+    if text_score >= 0.25:
+        reasons.append("Resume content is similar to the job description")
     if role_score:
         reasons.append("Preferred role appears in the job title")
     if location_score:
