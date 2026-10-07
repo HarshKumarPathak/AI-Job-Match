@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Job, JobSkill, Skill
-from ml.skills.normalization import normalize_skills
+from app.services.skill_normalization import normalize_skills
 
 
 def save_job(db: Session, payload: dict) -> Job:
