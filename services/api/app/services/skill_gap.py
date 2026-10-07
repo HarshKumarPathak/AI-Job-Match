@@ -3,9 +3,10 @@ from collections import Counter
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Job, JobSkill, Skill
-from app.services.recommendation_engine import recommend_jobs
+from app.models import CandidateSkill, Skill
 from ml.skills.normalization import normalize_skill
+
+from app.services.recommendation_engine import recommend_jobs
 
 
 def analyze_skill_gaps(
@@ -17,11 +18,8 @@ def analyze_skill_gaps(
 
     candidate_skill_rows = db.scalars(
         select(Skill.name)
-        .join(__import__("app.models", fromlist=["CandidateSkill"]).CandidateSkill)
-        .where(
-            __import__("app.models", fromlist=["CandidateSkill"]).CandidateSkill.candidate_id
-            == candidate_id
-        )
+        .join(CandidateSkill, CandidateSkill.skill_id == Skill.id)
+        .where(CandidateSkill.candidate_id == candidate_id)
     ).all()
     candidate_skills = {normalize_skill(skill) for skill in candidate_skill_rows}
 
