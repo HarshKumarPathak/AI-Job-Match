@@ -99,3 +99,72 @@ The backend currently supports:
 
 The recommendation flow is intentionally simple at this stage so it can be tested and improved incrementally before adding semantic embeddings.
 
+
+
+## Run the project locally
+
+### 1. Start PostgreSQL and Redis
+
+From the repository root:
+
+```powershell
+docker compose -f infra/docker/docker-compose.yml up -d
+```
+
+### 2. Start the API
+
+```powershell
+cd services/api
+python -m venv .venv
+.venv\\Scripts\\Activate.ps1
+pip install -e ".[dev]"
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+API: http://localhost:8000  
+Swagger docs: http://localhost:8000/docs
+
+### 3. Add demo data
+
+In a second terminal, from the repository root:
+
+```powershell
+python scripts/seed_demo_data.py
+```
+
+This creates a demo candidate and a small local job dataset so the recommendation flow can be tested without depending on an external job API.
+
+### 4. Start the dashboard
+
+In another terminal:
+
+```powershell
+cd apps/web
+npm install
+npm run dev
+```
+
+Dashboard: http://localhost:3000
+
+The dashboard can create a candidate profile, upload a resume, show ranked jobs, explain matched/missing skills, highlight skill gaps, and link to learning resources.
+
+### Current product flow
+
+```text
+Resume / Profile
+      ↓
+Skill Extraction
+      ↓
+Job Normalization
+      ↓
+Candidate ↔ Job Matching
+      ↓
+Ranked Recommendations
+      ↓
+Skill Gap Analysis
+      ↓
+Learning Resources
+      ↓
+Web Dashboard
+```
