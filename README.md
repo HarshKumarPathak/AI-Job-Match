@@ -59,7 +59,7 @@ scripts/               # development utilities
 
 ## Development status
 
-Phase 1 — foundation and architecture.
+Phase 1 — core product foundation implemented; semantic embeddings and scheduled notifications remain future upgrades.
 
 ## Engineering principles
 
@@ -147,7 +147,7 @@ npm run dev
 
 Dashboard: http://localhost:3000
 
-The dashboard can create a candidate profile, upload a resume, show ranked jobs, explain matched/missing skills, highlight skill gaps, and link to learning resources.
+The dashboard can create a candidate profile, upload a resume, show ranked jobs, filter them, explain matched/missing skills, highlight skill gaps, link to learning resources, save jobs, track application status, and configure match-score alerts.
 
 ### Current product flow
 
@@ -211,3 +211,14 @@ This gives the project a measurable ML baseline that can later be compared with 
 - `/alerts`
 
 The demo job source is intentionally local. Real job adapters can be added independently and should use permitted APIs, feeds, or public career endpoints rather than scraping sites that prohibit it.
+
+
+## Current implementation status
+
+The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, and threshold-based job alerts. The matching model remains intentionally explainable: skills (55%), TF-IDF text similarity (20%), preferred role (15%), and location (10%).
+
+### What is deliberately not claimed yet
+
+- No live external job provider is bundled by default; the demo source is local.
+- Alerts currently check the existing job dataset on demand. Email/push delivery and scheduled background notifications are future work.
+- Semantic embeddings are not part of the baseline yet. They can be added later and compared against the TF-IDF/hybrid baseline using the evaluation utilities in `ml/matching`.
