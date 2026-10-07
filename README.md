@@ -168,3 +168,46 @@ Learning Resources
       ↓
 Web Dashboard
 ```
+
+
+## What makes the matching "AI"
+
+The first version deliberately uses an explainable hybrid baseline instead of a black-box model:
+
+- **Skill overlap:** measures how many job skills are already present.
+- **TF-IDF similarity:** compares resume text with the job title/description.
+- **Role preference:** checks whether a preferred role appears in the title.
+- **Location preference:** checks the candidate's preferred location.
+
+The weighted score is currently:
+
+`55% skills + 20% resume/job text similarity + 15% role + 10% location`
+
+This gives the project a measurable ML baseline that can later be compared with sentence-transformer embeddings.
+
+## Candidate workflow
+
+1. Create a candidate profile.
+2. Upload a PDF, DOCX, or TXT resume.
+3. Extract and normalize skills.
+4. Ingest normalized jobs through source adapters.
+5. Rank jobs with the hybrid matcher.
+6. Inspect matched and missing skills.
+7. Review the highest-priority skill gaps.
+8. Open curated learning resources.
+9. Save interesting jobs and track application status.
+
+## Current API areas
+
+- `/candidates`
+- `/candidates/{candidate_id}/resumes`
+- `/jobs`
+- `/recommendations/{candidate_id}`
+- `/matches/{candidate_id}/{job_id}`
+- `/skill-gaps/{candidate_id}`
+- `/learning`
+- `/tracking/saved`
+- `/tracking/applications`
+- `/alerts`
+
+The demo job source is intentionally local. Real job adapters can be added independently and should use permitted APIs, feeds, or public career endpoints rather than scraping sites that prohibit it.
