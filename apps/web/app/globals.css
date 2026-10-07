@@ -25,7 +25,7 @@
 
 .secondary{border:1px solid var(--line);background:white;color:var(--text);border-radius:10px;padding:10px 14px;font-weight:700}
 .secondary:hover,.save:hover{border-color:#c7c8f4}
-.filterPanel{margin-bottom:20px}.filters.wide{display:grid;grid-template-columns:2fr 1fr 1fr auto;align-items:center}.filters select,.alertForm input,.trackingCard select{border:1px solid var(--line);background:white;border-radius:10px;padding:9px 11px}.filters select{min-width:150px}
+.filterPanel{margin-bottom:20px}.filters.wide{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;align-items:center}.filters select,.alertForm input,.trackingCard select{border:1px solid var(--line);background:white;border-radius:10px;padding:9px 11px}.filters select{min-width:150px}
 .alertPanel{margin-bottom:20px}.alertForm{display:flex;align-items:end;gap:12px;margin-top:14px}.alertForm label{display:grid;gap:6px;color:var(--muted);font-size:13px}.alertForm input{width:130px}
 .savedPanel,.alertResults{margin-top:20px}.savedList,.alertList{display:grid;gap:9px;margin-top:14px}.savedItem,.alertItem{display:grid;grid-template-columns:1.5fr 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px}.savedItem span,.alertItem span{color:var(--muted);font-size:13px}.savedItem a{color:var(--accent);text-decoration:none;font-weight:700;font-size:13px}
 .trackingCard select{width:100%;text-transform:capitalize}
