@@ -8,6 +8,7 @@ class RecommendationRead(BaseModel):
     location: str | None
     remote: bool
     employment_type: str | None
+    source: str | None
     apply_url: str | None
     match_score: float
     matched_skills: list[str]
