@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.alerts import router as alerts_router
 from app.api.candidates import router as candidates_router
 from app.api.jobs import router as jobs_router
 from app.api.learning import router as learning_router
@@ -18,3 +19,4 @@ router.include_router(recommendations_router)
 router.include_router(skill_gaps_router)
 router.include_router(learning_router)
 router.include_router(tracking_router)
+router.include_router(alerts_router)
