@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import Candidate, JobAlert
-from app.schemas.alert import AlertMatchRead, JobAlertCreate, JobAlertRead
+from app.schemas.alert import AlertMatchRead, JobAlertCreate, JobAlertRead, JobAlertUpdate
 from app.services.recommendation_engine import recommend_jobs
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
@@ -14,6 +14,19 @@ router = APIRouter(prefix="/alerts", tags=["alerts"])
 def create_alert(payload: JobAlertCreate, db: Session = Depends(get_db)) -> JobAlert:
     if db.get(Candidate, payload.candidate_id) is None:
         raise HTTPException(status_code=404, detail="Candidate not found")
+
+    existing = db.scalar(
+        select(JobAlert)
+        .where(JobAlert.candidate_id == payload.candidate_id)
+        .order_by(JobAlert.created_at.desc())
+    )
+    if existing:
+        existing.minimum_score = payload.minimum_score
+        existing.enabled = True
+        db.commit()
+        db.refresh(existing)
+        return existing
+
     alert = JobAlert(**payload.model_dump())
     db.add(alert)
     db.commit()
@@ -21,12 +34,33 @@ def create_alert(payload: JobAlertCreate, db: Session = Depends(get_db)) -> JobA
     return alert
 
 
+@router.patch("/{alert_id}", response_model=JobAlertRead)
+def update_alert(
+    alert_id: int,
+    payload: JobAlertUpdate,
+    db: Session = Depends(get_db),
+) -> JobAlert:
+    alert = db.get(JobAlert, alert_id)
+    if alert is None:
+        raise HTTPException(status_code=404, detail="Alert not found")
+
+    alert.minimum_score = payload.minimum_score
+    alert.enabled = payload.enabled
+    db.commit()
+    db.refresh(alert)
+    return alert
+
+
 @router.get("/{candidate_id}/matches", response_model=list[AlertMatchRead])
 def check_alert(candidate_id: int, db: Session = Depends(get_db)) -> list[AlertMatchRead]:
-    alert = db.scalar(select(JobAlert).where(
-        JobAlert.candidate_id == candidate_id,
-        JobAlert.enabled.is_(True),
-    ).order_by(JobAlert.created_at.desc()))
+    alert = db.scalar(
+        select(JobAlert)
+        .where(
+            JobAlert.candidate_id == candidate_id,
+            JobAlert.enabled.is_(True),
+        )
+        .order_by(JobAlert.created_at.desc())
+    )
     if alert is None:
         return []
 
