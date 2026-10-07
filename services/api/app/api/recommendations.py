@@ -27,6 +27,7 @@ def get_recommendations(
             remote=remote,
             location=location,
             employment_type=employment_type,
+            source=source,
         )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
