@@ -2,17 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  createCandidate,
   getLearningResources,
   getRecommendations,
   getSkillGaps,
   LearningResource,
   Recommendation,
   SkillGap,
+  uploadResume,
 } from "../lib/api";
 
-const CANDIDATE_ID = 1;
+const DEFAULT_CANDIDATE_ID = 1;
 
 export default function Dashboard() {
+  const [candidateId, setCandidateId] = useState(DEFAULT_CANDIDATE_ID);
   const [jobs, setJobs] = useState<Recommendation[]>([]);
   const [gaps, setGaps] = useState<SkillGap[]>([]);
   const [resources, setResources] = useState<LearningResource[]>([]);
@@ -20,26 +23,33 @@ export default function Dashboard() {
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("ai-job-match-candidate");
+    if (saved) setCandidateId(Number(saved));
+  }, []);
 
   useEffect(() => {
     async function load() {
       try {
+        setLoading(true);
+        setError("");
         const [recommendations, skillGaps] = await Promise.all([
-          getRecommendations(CANDIDATE_ID),
-          getSkillGaps(CANDIDATE_ID),
+          getRecommendations(candidateId),
+          getSkillGaps(candidateId),
         ]);
         setJobs(recommendations);
         setGaps(skillGaps);
-        const topSkills = skillGaps.slice(0, 5).map((gap) => gap.skill);
-        setResources(await getLearningResources(topSkills));
+        setResources(await getLearningResources(skillGaps.slice(0, 5).map((gap) => gap.skill)));
       } catch {
-        setError("Backend data load nahi hua. API + database start karke demo data seed karo.");
+        setError("Profile/job data load nahi hua. Pehle profile setup karo aur demo jobs seed karo.");
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [candidateId]);
 
   const filteredJobs = useMemo(
     () =>
@@ -49,6 +59,28 @@ export default function Dashboard() {
       }),
     [jobs, search, remoteOnly],
   );
+
+  async function saveProfile(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    try {
+      const candidate = await createCandidate({
+        name: String(form.get("name") ?? ""),
+        email: String(form.get("email") ?? ""),
+        preferred_roles: String(form.get("roles") ?? "").split(",").map((x) => x.trim()).filter(Boolean),
+        preferred_locations: String(form.get("locations") ?? "").split(",").map((x) => x.trim()).filter(Boolean),
+        experience_years: Number(form.get("experience") ?? 0),
+        education: String(form.get("education") ?? ""),
+      });
+      const file = form.get("resume");
+      if (file instanceof File && file.size > 0) await uploadResume(candidate.id, file);
+      window.localStorage.setItem("ai-job-match-candidate", String(candidate.id));
+      setCandidateId(candidate.id);
+      setProfileOpen(false);
+    } catch {
+      setError("Profile save nahi hua. API check karo.");
+    }
+  }
 
   if (loading) return <main className="shell"><p>Loading your job matches...</p></main>;
 
@@ -62,13 +94,38 @@ export default function Dashboard() {
             Recommendations are based on your current skills, preferred role and job requirements.
           </p>
         </div>
-        <div className="heroStat">
-          <strong>{jobs.length}</strong>
-          <span>recommended jobs</span>
+        <div className="heroActions">
+          <button className="primary" onClick={() => setProfileOpen(true)}>Update profile</button>
+          <div className="heroStat">
+            <strong>{jobs.length}</strong>
+            <span>recommended jobs</span>
+          </div>
         </div>
       </header>
 
       {error && <div className="error">{error}</div>}
+
+      {profileOpen && (
+        <form className="panel profile" onSubmit={saveProfile}>
+          <div className="panelHead">
+            <div>
+              <p className="eyebrow">PROFILE</p>
+              <h2>Tell us about yourself</h2>
+            </div>
+            <button type="button" onClick={() => setProfileOpen(false)}>Close</button>
+          </div>
+          <div className="formGrid">
+            <input name="name" required placeholder="Name" />
+            <input name="email" type="email" required placeholder="Email" />
+            <input name="roles" placeholder="Preferred roles (e.g. AI Engineer, Backend)" />
+            <input name="locations" placeholder="Preferred locations (e.g. Remote, Bengaluru)" />
+            <input name="experience" type="number" min="0" step="0.5" placeholder="Experience years" />
+            <input name="education" placeholder="Education" />
+            <label className="fileInput">Resume (PDF/DOCX/TXT)<input name="resume" type="file" accept=".pdf,.docx,.txt" /></label>
+          </div>
+          <button className="primary" type="submit">Save profile & resume</button>
+        </form>
+      )}
 
       <section className="grid two">
         <div className="panel">
@@ -78,17 +135,8 @@ export default function Dashboard() {
               <h2>Best matches</h2>
             </div>
             <div className="filters">
-              <input
-                placeholder="Search jobs..."
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-              <button
-                className={remoteOnly ? "active" : ""}
-                onClick={() => setRemoteOnly((value) => !value)}
-              >
-                Remote
-              </button>
+              <input placeholder="Search jobs..." value={search} onChange={(event) => setSearch(event.target.value)} />
+              <button className={remoteOnly ? "active" : ""} onClick={() => setRemoteOnly((value) => !value)}>Remote</button>
             </div>
           </div>
 
@@ -108,7 +156,7 @@ export default function Dashboard() {
                 </div>
                 <div className="jobFooter">
                   <p>{job.reasons.join(" · ")}</p>
-                  <span>{job.remote ? "Remote" : "On-site"}</span>
+                  {job.apply_url ? <a className="apply" href={job.apply_url} target="_blank" rel="noreferrer">Apply →</a> : <span>{job.remote ? "Remote" : "On-site"}</span>}
                 </div>
               </article>
             ))}
@@ -123,10 +171,7 @@ export default function Dashboard() {
           <div className="gapList">
             {gaps.slice(0, 8).map((gap) => (
               <div className="gap" key={gap.skill}>
-                <div>
-                  <strong>{gap.skill}</strong>
-                  <span>{gap.jobs_requiring_skill} recommended jobs</span>
-                </div>
+                <div><strong>{gap.skill}</strong><span>{gap.jobs_requiring_skill} recommended jobs</span></div>
                 <b>{gap.priority}</b>
               </div>
             ))}
