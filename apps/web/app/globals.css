@@ -10,3 +10,15 @@
 .gapList{display:grid;gap:9px;margin-top:18px}.gap{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:10px 0}.gap strong,.gap span{display:block}.gap span{color:var(--muted);font-size:12px;margin-top:3px}.gap b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#f0f0ff;color:var(--accent)}
 .resources{margin-top:20px}.resourceGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}.resource{color:inherit;text-decoration:none;border:1px solid var(--line);border-radius:14px;padding:15px}.resource:hover{border-color:#c8c9f8}.resource span{text-transform:uppercase;color:var(--muted);font-size:10px;letter-spacing:.1em}.resource h3{margin:8px 0;font-size:16px}.resource p{margin:0;color:var(--muted);font-size:12px}.error{margin-bottom:20px;border:1px solid #ffd2d2;background:#fff3f3;color:#9b2c2c;border-radius:12px;padding:12px 15px}
 @media(max-width:850px){.grid.two{grid-template-columns:1fr}.resourceGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.shell{width:min(100% - 20px,1180px);padding-top:25px}.hero,.panelHead,.heroActions{align-items:stretch;flex-direction:column}.filters input{width:100%}.filters{flex-direction:column}.resourceGrid,.formGrid{grid-template-columns:1fr}.jobTop,.jobFooter{flex-direction:column}.fileInput{grid-column:auto}}
+
+
+.jobActions{display:flex;align-items:center;gap:10px}
+.save{border:1px solid var(--line);background:white;border-radius:9px;padding:7px 10px;color:var(--text)}
+.tracking{margin-top:20px}
+.trackingGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.trackingCard{border:1px solid var(--line);border-radius:12px;padding:13px}
+.trackingCard strong,.trackingCard span{display:block}
+.trackingCard span{color:var(--muted);font-size:12px;margin:4px 0 10px}
+.trackingCard b{text-transform:capitalize;color:var(--accent);font-size:12px}
+@media(max-width:850px){.trackingGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.trackingGrid{grid-template-columns:1fr}}
