@@ -24,6 +24,7 @@ def recommend_jobs(
     remote: bool | None = None,
     location: str | None = None,
     employment_type: str | None = None,
+    source: str | None = None,
 ) -> list[RankedRecommendation]:
     statement = select(Job)
 
@@ -38,6 +39,8 @@ def recommend_jobs(
         statement = statement.where(Job.location.ilike(f"%{location.strip()}%"))
     if employment_type:
         statement = statement.where(Job.employment_type.ilike(f"%{employment_type.strip()}%"))
+    if source:
+        statement = statement.where(Job.source.ilike(f"%{source.strip()}%"))
 
     jobs = db.scalars(statement).all()
     recommendations: list[RankedRecommendation] = []
