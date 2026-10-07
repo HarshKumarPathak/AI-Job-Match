@@ -6,6 +6,9 @@ import {
   getLearningResources,
   getRecommendations,
   getSkillGaps,
+  getApplications,
+  createApplication,
+  saveJob,
   LearningResource,
   Recommendation,
   SkillGap,
@@ -24,6 +27,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [applications, setApplications] = useState<Record<number, string>>({});
 
   useEffect(() => {
     const saved = window.localStorage.getItem("ai-job-match-candidate");
@@ -42,6 +46,8 @@ export default function Dashboard() {
         setJobs(recommendations);
         setGaps(skillGaps);
         setResources(await getLearningResources(skillGaps.slice(0, 5).map((gap) => gap.skill)));
+        const tracked = await getApplications(candidateId);
+        setApplications(Object.fromEntries(tracked.map((item) => [item.job_id, item.status])));
       } catch {
         setError("Profile/job data load nahi hua. Pehle profile setup karo aur demo jobs seed karo.");
       } finally {
@@ -156,7 +162,7 @@ export default function Dashboard() {
                 </div>
                 <div className="jobFooter">
                   <p>{job.reasons.join(" · ")}</p>
-                  {job.apply_url ? <a className="apply" href={job.apply_url} target="_blank" rel="noreferrer">Apply →</a> : <span>{job.remote ? "Remote" : "On-site"}</span>}
+                  {job.apply_url ? <div className="jobActions"><button className="save" onClick={() => saveJob(candidateId, job.job_id).catch(() => setError("Job save nahi hua."))}>Save</button><a className="apply" href={job.apply_url} target="_blank" rel="noreferrer" onClick={() => createApplication(candidateId, job.job_id).then(() => setApplications((current) => ({ ...current, [job.job_id]: "applied" }))).catch(() => setError("Application track nahi hui."))}>Apply →</a></div> : <span>{job.remote ? "Remote" : "On-site"}</span>}
                 </div>
               </article>
             ))}
@@ -193,6 +199,18 @@ export default function Dashboard() {
               <p>Improve <strong>{resource.skill}</strong> · {resource.level}</p>
             </a>
           ))}
+        </div>
+      </section>
+
+      <section className="panel tracking">
+        <p className="eyebrow">APPLICATIONS</p>
+        <h2>Your application progress</h2>
+        <div className="trackingGrid">
+          {Object.entries(applications).map(([jobId, status]) => {
+            const job = jobs.find((item) => item.job_id === Number(jobId));
+            return job ? <div className="trackingCard" key={jobId}><strong>{job.title}</strong><span>{job.company}</span><b>{status}</b></div> : null;
+          })}
+          {!Object.keys(applications).length && <p className="muted">Apply to a recommended job and it will appear here.</p>}
         </div>
       </section>
     </main>
