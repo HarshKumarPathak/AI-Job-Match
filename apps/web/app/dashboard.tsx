@@ -11,6 +11,7 @@ import {
   createOrUpdateAlert,
   checkAlert,
   getApplications,
+  getAlert,
   getLearningResources,
   getRecommendations,
   getSavedJobs,
@@ -56,7 +57,7 @@ export default function Dashboard() {
       try {
         setLoading(true);
         setError("");
-        const [recommendations, skillGaps, tracked, saved] = await Promise.all([
+        const [recommendations, skillGaps, tracked, saved, existingAlert] = await Promise.all([
           getRecommendations(candidateId, {
             q: search || undefined,
             remote: remoteOnly ? true : undefined,
@@ -66,11 +67,14 @@ export default function Dashboard() {
           getSkillGaps(candidateId),
           getApplications(candidateId),
           getSavedJobs(candidateId),
+          getAlert(candidateId),
         ]);
         setJobs(recommendations);
         setGaps(skillGaps);
         setApplications(tracked);
         setSavedJobIds(new Set(saved.map((item) => item.job_id)));
+        setAlert(existingAlert);
+        if (existingAlert) setAlertScore(existingAlert.minimum_score);
         setResources(await getLearningResources(skillGaps.slice(0, 5).map((gap) => gap.skill)));
         const matches = await checkAlert(candidateId);
         setAlertMatches(matches);
