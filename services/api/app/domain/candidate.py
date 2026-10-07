@@ -8,3 +8,4 @@ class CandidateProfile:
     preferred_locations: set[str] = field(default_factory=set)
     experience_years: float = 0.0
     education: str | None = None
+    resume_text: str = ""
