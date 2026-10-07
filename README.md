@@ -84,3 +84,18 @@ Phase 1 — foundation and architecture.
 ## License
 
 MIT
+
+
+## Current API capabilities
+
+The backend currently supports:
+
+- Candidate profile creation
+- PDF/DOCX/TXT resume text extraction
+- Basic explainable skill extraction and normalization
+- Job ingestion with source/external-ID deduplication
+- Candidate-to-job match scoring
+- Ranked job recommendations with matched and missing skills
+
+The recommendation flow is intentionally simple at this stage so it can be tested and improved incrementally before adding semantic embeddings.
+
