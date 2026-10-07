@@ -34,6 +34,15 @@ def create_alert(payload: JobAlertCreate, db: Session = Depends(get_db)) -> JobA
     return alert
 
 
+@router.get("/{candidate_id}", response_model=JobAlertRead | None)
+def get_alert(candidate_id: int, db: Session = Depends(get_db)) -> JobAlert | None:
+    return db.scalar(
+        select(JobAlert)
+        .where(JobAlert.candidate_id == candidate_id)
+        .order_by(JobAlert.created_at.desc())
+    )
+
+
 @router.patch("/{alert_id}", response_model=JobAlertRead)
 def update_alert(
     alert_id: int,
