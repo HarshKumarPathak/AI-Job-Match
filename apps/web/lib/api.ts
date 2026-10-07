@@ -6,6 +6,8 @@ export type Recommendation = {
   company: string;
   location: string | null;
   remote: boolean;
+  employment_type: string | null;
+  apply_url: string | null;
   match_score: number;
   matched_skills: string[];
   missing_skills: string[];
@@ -56,4 +58,31 @@ export async function getLearningResources(skills: string[]): Promise<LearningRe
   });
   if (!response.ok) throw new Error("Could not load learning resources");
   return response.json();
+}
+
+export async function createCandidate(payload: {
+  name: string;
+  email: string;
+  preferred_roles: string[];
+  preferred_locations: string[];
+  experience_years: number;
+  education: string;
+}): Promise<{ id: number }> {
+  const response = await fetch(`${API_URL}/candidates`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error("Could not create candidate");
+  return response.json();
+}
+
+export async function uploadResume(candidateId: number, file: File): Promise<void> {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch(`${API_URL}/candidates/${candidateId}/resumes`, {
+    method: "POST",
+    body: form,
+  });
+  if (!response.ok) throw new Error("Could not upload resume");
 }
