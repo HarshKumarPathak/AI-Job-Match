@@ -1,0 +1,50 @@
+[
+  {
+    "external_id": "demo-python-ai-001",
+    "source": "demo",
+    "title": "AI/ML Intern",
+    "company": "Example AI Labs",
+    "description": "Work on Python, machine learning, SQL and data analysis projects.",
+    "location": "Remote",
+    "remote": true,
+    "employment_type": "Internship",
+    "apply_url": "https://example.com/jobs/ai-ml-intern",
+    "skills": ["Python", "Machine Learning", "SQL", "Pandas", "Git"]
+  },
+  {
+    "external_id": "demo-backend-002",
+    "source": "demo",
+    "title": "Backend Developer Intern",
+    "company": "Example Tech",
+    "description": "Build backend APIs using Python, FastAPI, PostgreSQL and Docker.",
+    "location": "Bengaluru, India",
+    "remote": false,
+    "employment_type": "Internship",
+    "apply_url": "https://example.com/jobs/backend-intern",
+    "skills": ["Python", "FastAPI", "PostgreSQL", "Docker", "Git"]
+  },
+  {
+    "external_id": "demo-data-003",
+    "source": "demo",
+    "title": "Data Science Intern",
+    "company": "Example Analytics",
+    "description": "Analyze datasets and build machine learning models with Python and SQL.",
+    "location": "Hyderabad, India",
+    "remote": false,
+    "employment_type": "Internship",
+    "apply_url": "https://example.com/jobs/data-science-intern",
+    "skills": ["Python", "SQL", "Machine Learning", "Pandas", "NumPy"]
+  },
+  {
+    "external_id": "demo-fullstack-004",
+    "source": "demo",
+    "title": "Full Stack Developer Intern",
+    "company": "Example Software",
+    "description": "Create web applications with React, TypeScript, Node.js and PostgreSQL.",
+    "location": "Remote",
+    "remote": true,
+    "employment_type": "Internship",
+    "apply_url": "https://example.com/jobs/fullstack-intern",
+    "skills": ["React", "TypeScript", "Node.js", "PostgreSQL", "Git"]
+  }
+]
