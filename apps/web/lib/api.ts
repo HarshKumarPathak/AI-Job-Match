@@ -7,6 +7,7 @@ export type Recommendation = {
   location: string | null;
   remote: boolean;
   employment_type: string | null;
+  source: string | null;
   apply_url: string | null;
   match_score: number;
   matched_skills: string[];
@@ -73,13 +74,14 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export async function getRecommendations(
   candidateId: number,
-  filters: { q?: string; remote?: boolean; location?: string; employmentType?: string } = {},
+  filters: { q?: string; remote?: boolean; location?: string; employmentType?: string; source?: string } = {},
 ): Promise<Recommendation[]> {
   const params = new URLSearchParams({ limit: "20" });
   if (filters.q) params.set("q", filters.q);
   if (filters.remote !== undefined) params.set("remote", String(filters.remote));
   if (filters.location) params.set("location", filters.location);
   if (filters.employmentType) params.set("employment_type", filters.employmentType);
+  if (filters.source) params.set("source", filters.source);
 
   return request<Recommendation[]>(
     `${API_URL}/recommendations/${candidateId}?${params.toString()}`,
