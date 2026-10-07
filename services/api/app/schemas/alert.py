@@ -8,6 +8,11 @@ class JobAlertCreate(BaseModel):
     minimum_score: float = Field(default=70.0, ge=0, le=100)
 
 
+class JobAlertUpdate(BaseModel):
+    minimum_score: float = Field(default=70.0, ge=0, le=100)
+    enabled: bool = True
+
+
 class JobAlertRead(JobAlertCreate):
     model_config = ConfigDict(from_attributes=True)
     id: int
