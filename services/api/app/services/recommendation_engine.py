@@ -20,8 +20,26 @@ def recommend_jobs(
     db: Session,
     candidate_id: int,
     limit: int = 10,
+    q: str | None = None,
+    remote: bool | None = None,
+    location: str | None = None,
+    employment_type: str | None = None,
 ) -> list[RankedRecommendation]:
-    jobs = db.scalars(select(Job)).all()
+    statement = select(Job)
+
+    if q:
+        pattern = f"%{q.strip()}%"
+        statement = statement.where(
+            Job.title.ilike(pattern) | Job.company.ilike(pattern) | Job.description.ilike(pattern)
+        )
+    if remote is not None:
+        statement = statement.where(Job.remote.is_(remote))
+    if location:
+        statement = statement.where(Job.location.ilike(f"%{location.strip()}%"))
+    if employment_type:
+        statement = statement.where(Job.employment_type.ilike(f"%{employment_type.strip()}%"))
+
+    jobs = db.scalars(statement).all()
     recommendations: list[RankedRecommendation] = []
 
     for job in jobs:
