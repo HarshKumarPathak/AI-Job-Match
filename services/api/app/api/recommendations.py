@@ -26,6 +26,8 @@ def get_recommendations(
             company=item.job.company,
             location=item.job.location,
             remote=item.job.remote,
+            employment_type=item.job.employment_type,
+            apply_url=item.job.apply_url,
             match_score=item.score,
             matched_skills=list(item.matched_skills),
             missing_skills=list(item.missing_skills),
