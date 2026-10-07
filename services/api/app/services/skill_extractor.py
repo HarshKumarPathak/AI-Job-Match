@@ -1,36 +1,14 @@
 import re
 
-from ml.skills.normalization import normalize_skill
+from app.services.skill_normalization import normalize_skill
 
 
 KNOWN_SKILLS = {
-    "python",
-    "sql",
-    "java",
-    "javascript",
-    "typescript",
-    "c++",
-    "machine learning",
-    "deep learning",
-    "artificial intelligence",
-    "generative ai",
-    "nlp",
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "tensorflow",
-    "pytorch",
-    "fastapi",
-    "django",
-    "flask",
-    "react",
-    "next.js",
-    "node.js",
-    "postgresql",
-    "mongodb",
-    "docker",
-    "git",
-    "github",
+    "python", "sql", "java", "javascript", "typescript", "c++",
+    "machine learning", "deep learning", "artificial intelligence",
+    "generative ai", "nlp", "pandas", "numpy", "scikit-learn",
+    "tensorflow", "pytorch", "fastapi", "django", "flask", "react",
+    "next.js", "node.js", "postgresql", "mongodb", "docker", "git", "github",
 }
 
 
