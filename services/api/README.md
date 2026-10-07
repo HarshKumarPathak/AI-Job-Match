@@ -1,5 +1,20 @@
-# API Service
+# AI Job Match API
 
-FastAPI service for candidate profiles, resumes, jobs, recommendations, skill gaps, and alerts.
+FastAPI backend for candidate profiles, resume processing, jobs, and recommendations.
 
-Initial implementation will keep domain modules separated so the API can grow without becoming a monolith.
+## Local development
+
+From this directory:
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\\Scripts\\Activate.ps1
+
+pip install -e ".[dev]"
+uvicorn app.main:app --reload
+```
+
+API docs: http://localhost:8000/docs
+
+The PostgreSQL and Redis development services are defined in `../../infra/docker/docker-compose.yml`.
