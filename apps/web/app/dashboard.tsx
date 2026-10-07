@@ -37,6 +37,7 @@ export default function Dashboard() {
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [location, setLocation] = useState("");
   const [employmentType, setEmploymentType] = useState("");
+  const [source, setSource] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
@@ -63,6 +64,7 @@ export default function Dashboard() {
             remote: remoteOnly ? true : undefined,
             location: location || undefined,
             employmentType: employmentType || undefined,
+            source: source || undefined,
           }),
           getSkillGaps(candidateId),
           getApplications(candidateId),
@@ -85,7 +87,7 @@ export default function Dashboard() {
       }
     }
     load();
-  }, [candidateId, search, remoteOnly, location, employmentType]);
+  }, [candidateId, search, remoteOnly, location, employmentType, source]);
 
   const savedJobs = useMemo(
     () => jobs.filter((job) => savedJobIds.has(job.job_id)),
@@ -224,6 +226,7 @@ export default function Dashboard() {
             <option value="part-time">Part-time</option>
             <option value="contract">Contract</option>
           </select>
+          <input placeholder="Source" value={source} onChange={(e) => setSource(e.target.value)} />
           <button className={remoteOnly ? "active" : ""} onClick={() => setRemoteOnly((value) => !value)}>Remote only</button>
         </div>
       </section>
@@ -240,7 +243,7 @@ export default function Dashboard() {
                 <div className="jobTop">
                   <div>
                     <h3>{job.title}</h3>
-                    <p>{job.company} · {job.location ?? "Location not listed"} · {job.employment_type ?? "Type not listed"}</p>
+                    <p>{job.company} · {job.location ?? "Location not listed"} · {job.employment_type ?? "Type not listed"} · {job.source ?? "Source not listed"}</p>
                   </div>
                   <span className="score">{Math.round(job.match_score)}% match</span>
                 </div>
