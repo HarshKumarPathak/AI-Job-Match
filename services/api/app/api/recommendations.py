@@ -12,10 +12,22 @@ router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 def get_recommendations(
     candidate_id: int,
     limit: int = Query(default=10, ge=1, le=50),
+    q: str | None = Query(default=None, min_length=1),
+    remote: bool | None = None,
+    location: str | None = None,
+    employment_type: str | None = None,
     db: Session = Depends(get_db),
 ) -> list[RecommendationRead]:
     try:
-        recommendations = recommend_jobs(db, candidate_id, limit)
+        recommendations = recommend_jobs(
+            db,
+            candidate_id,
+            limit,
+            q=q,
+            remote=remote,
+            location=location,
+            employment_type=employment_type,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
