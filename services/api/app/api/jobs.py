@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -21,8 +21,31 @@ def create_job(payload: JobCreate, db: Session = Depends(get_db)) -> Job:
 
 
 @router.get("", response_model=list[JobRead])
-def list_jobs(db: Session = Depends(get_db)) -> list[Job]:
-    return list(db.scalars(select(Job).order_by(Job.created_at.desc())).all())
+def list_jobs(
+    q: str | None = Query(default=None, min_length=1),
+    remote: bool | None = None,
+    location: str | None = None,
+    employment_type: str | None = None,
+    source: str | None = None,
+    db: Session = Depends(get_db),
+) -> list[Job]:
+    statement = select(Job)
+
+    if q:
+        pattern = f"%{q.strip()}%"
+        statement = statement.where(
+            Job.title.ilike(pattern) | Job.company.ilike(pattern) | Job.description.ilike(pattern)
+        )
+    if remote is not None:
+        statement = statement.where(Job.remote.is_(remote))
+    if location:
+        statement = statement.where(Job.location.ilike(f"%{location.strip()}%"))
+    if employment_type:
+        statement = statement.where(Job.employment_type.ilike(f"%{employment_type.strip()}%"))
+    if source:
+        statement = statement.where(Job.source.ilike(f"%{source.strip()}%"))
+
+    return list(db.scalars(statement.order_by(Job.created_at.desc())).all())
 
 
 @router.post("/ingest/demo")
