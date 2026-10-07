@@ -7,6 +7,7 @@ from app.api.matches import router as matches_router
 from app.api.recommendations import router as recommendations_router
 from app.api.resumes import router as resumes_router
 from app.api.skill_gaps import router as skill_gaps_router
+from app.api.tracking import router as tracking_router
 
 router = APIRouter()
 router.include_router(candidates_router)
@@ -16,3 +17,4 @@ router.include_router(matches_router)
 router.include_router(recommendations_router)
 router.include_router(skill_gaps_router)
 router.include_router(learning_router)
+router.include_router(tracking_router)
