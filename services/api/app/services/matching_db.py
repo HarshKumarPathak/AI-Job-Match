@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.domain.candidate import CandidateProfile
 from app.domain.job import Job as DomainJob
-from app.models import Candidate, CandidateSkill, Job, JobSkill, Skill
+from app.models import Candidate, CandidateSkill, Job, JobSkill, Resume, Skill
 from app.services.matching import MatchResult, explain_match
 
 
@@ -22,18 +22,23 @@ def get_candidate_profile(db: Session, candidate_id: int) -> CandidateProfile:
         .where(CandidateSkill.candidate_id == candidate_id)
     ).all()
 
+    resume = db.scalar(
+        select(Resume)
+        .where(Resume.candidate_id == candidate_id)
+        .order_by(Resume.created_at.desc())
+    )
+
     return CandidateProfile(
         skills=set(skills),
         preferred_roles=_split_lines(candidate.preferred_roles),
         preferred_locations=_split_lines(candidate.preferred_locations),
         experience_years=candidate.experience_years,
         education=candidate.education,
+        resume_text=resume.raw_text if resume else "",
     )
 
 
-def match_candidate_to_job(
-    db: Session, candidate_id: int, job_id: int
-) -> MatchResult:
+def match_candidate_to_job(db: Session, candidate_id: int, job_id: int) -> MatchResult:
     candidate = get_candidate_profile(db, candidate_id)
     job = db.get(Job, job_id)
     if job is None:
