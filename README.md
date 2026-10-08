@@ -59,7 +59,7 @@ scripts/               # development utilities
 
 ## Development status
 
-Phase 1 — core product foundation implemented; semantic embeddings and scheduled notifications remain future upgrades.
+Phase 1 — core product foundation implemented; semantic embeddings are optional and scheduled ingestion is included. Actual email/push notification delivery remains a future upgrade.
 
 ## Engineering principles
 
@@ -74,7 +74,7 @@ Phase 1 — core product foundation implemented; semantic embeddings and schedul
 
 - Next.js + TypeScript
 - FastAPI + Python
-- PostgreSQL + pgvector
+- PostgreSQL (with pgvector-ready infrastructure)
 - scikit-learn
 - sentence-transformers
 - spaCy
@@ -217,7 +217,7 @@ The demo job source is intentionally local. Real job adapters can be added indep
 
 ## Current implementation status
 
-The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, and threshold-based job alerts. The matching model remains intentionally explainable: skills (55%), TF-IDF text similarity (20%), preferred role (15%), and location (10%).
+The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, recommendation history, and threshold-based job alerts. The default matcher remains intentionally explainable: skills (55%), TF-IDF text similarity (20%), preferred role (15%), and location (10%). Optional sentence-transformer semantic matching and an evaluation suite are also included.
 
 ### What is deliberately not claimed yet
 
@@ -242,7 +242,7 @@ docker compose -f infra/docker/docker-compose.yml up --build
 ```
 
 The Compose stack starts PostgreSQL, Redis, FastAPI, Next.js, and a scheduler-friendly
-ingestion service. PostgreSQL and Redis use healthchecks, and the API waits for
+ingestion service. API readiness is checked before the web and scheduler services start. PostgreSQL and Redis use healthchecks, and the API waits for
 PostgreSQL/Redis readiness before starting. Docker Compose supports healthcheck-based
 `depends_on` conditions for this startup pattern.
 
