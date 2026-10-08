@@ -9,6 +9,7 @@ from app.services.alert_service import mark_new_notifications
 from app.services.recommendation_engine import RankedRecommendation
 
 
+
 def test_alert_create_get_and_update() -> None:
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
@@ -46,6 +47,7 @@ def test_alert_create_get_and_update() -> None:
         )
         assert updated.minimum_score == 90
         assert updated.enabled is False
+
 
 
 def test_alert_matches_are_deduplicated_by_alert_and_job() -> None:
