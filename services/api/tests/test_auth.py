@@ -28,4 +28,6 @@ def test_user_candidate_relationship_is_unique():
         db.flush()
         db.add(User(email="test@example.com", password_hash="hash", candidate_id=candidate.id))
         db.commit()
-        assert db.scalar(select(User).where(User.email == "test@example.com")).candidate_id == candidate.id
+        user = db.scalar(select(User).where(User.email == "test@example.com"))
+        assert user is not None
+        assert user.candidate_id == candidate.id
