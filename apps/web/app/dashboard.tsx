@@ -286,6 +286,9 @@ export default function Dashboard() {
                   <span className="score">{Math.round(job.match_score)}% match</span>
                 </div>
                 <div className="chips">
+                  {job.remote && <span className="chip good">Remote</span>}
+                  {job.salary_min != null && <span className="chip">From {job.salary_min}</span>}
+                  {job.salary_max != null && <span className="chip">Up to {job.salary_max}</span>}
                   {job.matched_skills.map((skill) => <span className="chip good" key={skill}>✓ {skill}</span>)}
                   {job.missing_skills.slice(0, 4).map((skill) => <span className="chip missing" key={skill}>Need {skill}</span>)}
                 </div>
