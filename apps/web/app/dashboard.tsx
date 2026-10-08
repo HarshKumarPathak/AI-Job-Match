@@ -22,16 +22,22 @@ import {
   updateApplication,
   uploadResume,
   logout,
+  getCandidate,
+  getRecommendationHistory,
   LearningResource,
   Recommendation,
   SkillGap,
 } from "../lib/api";
 
-const DEFAULT_CANDIDATE_ID = 1;
 const STATUSES: ApplicationStatus[] = ["saved", "applied", "interview", "rejected", "offer"];
 
 export default function Dashboard() {
-  const [candidateId, setCandidateId] = useState(DEFAULT_CANDIDATE_ID);
+  const [candidateId, setCandidateId] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    return Number(window.localStorage.getItem("ai-job-match-candidate") ?? 0);
+  });
+  const [profile, setProfile] = useState({ name: "", roles: "", locations: "", experience: 0, education: "" });
+  const [history, setHistory] = useState<Awaited<ReturnType<typeof getRecommendationHistory>>>([]);
   const [jobs, setJobs] = useState<Recommendation[]>([]);
   const [gaps, setGaps] = useState<SkillGap[]>([]);
   const [resources, setResources] = useState<LearningResource[]>([]);
@@ -62,7 +68,7 @@ export default function Dashboard() {
         try {
           setLoading(true);
           setError("");
-          const [candidate, recommendations, skillGaps, tracked, saved, existingAlert] = await Promise.all([
+          const [candidate, recommendations, skillGaps, tracked, saved, existingAlert, recommendationHistory] = await Promise.all([
             getCandidate(candidateId),
             getRecommendations(candidateId, {
               q: search || undefined,
@@ -75,6 +81,7 @@ export default function Dashboard() {
             getApplications(candidateId),
             getSavedJobs(candidateId),
             getAlert(candidateId),
+            getRecommendationHistory(candidateId),
           ]);
           setProfile({
             name: candidate.name ?? "",
@@ -83,6 +90,7 @@ export default function Dashboard() {
             experience: candidate.experience_years,
             education: candidate.education ?? "",
           });
+          setHistory(recommendationHistory);
           setJobs(recommendations);
           setGaps(skillGaps);
           setApplications(tracked);
