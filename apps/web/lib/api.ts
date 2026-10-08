@@ -67,7 +67,10 @@ export type AlertMatch = {
 };
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, init);
+  const token = typeof window !== "undefined" ? window.localStorage.getItem("ai-job-match-token") : null;
+  const headers = new Headers(init?.headers);
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const response = await fetch(url, { ...init, headers });
   if (!response.ok) throw new Error((await response.text()) || "Request failed");
   return response.json();
 }
@@ -207,4 +210,40 @@ export async function updateAlert(
 
 export async function checkAlert(candidateId: number): Promise<AlertMatch[]> {
   return request<AlertMatch[]>(`${API_URL}/alerts/${candidateId}/matches`, { cache: "no-store" });
+}
+
+
+export type AuthResponse = {
+  access_token: string;
+  token_type: string;
+  candidate_id: number;
+  name: string | null;
+  email: string;
+};
+
+export async function login(email: string, password: string): Promise<AuthResponse> {
+  const result = await request<AuthResponse>(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  window.localStorage.setItem("ai-job-match-token", result.access_token);
+  window.localStorage.setItem("ai-job-match-candidate", String(result.candidate_id));
+  return result;
+}
+
+export async function register(name: string, email: string, password: string): Promise<AuthResponse> {
+  const result = await request<AuthResponse>(`${API_URL}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password }),
+  });
+  window.localStorage.setItem("ai-job-match-token", result.access_token);
+  window.localStorage.setItem("ai-job-match-candidate", String(result.candidate_id));
+  return result;
+}
+
+export function logout(): void {
+  window.localStorage.removeItem("ai-job-match-token");
+  window.localStorage.removeItem("ai-job-match-candidate");
 }
