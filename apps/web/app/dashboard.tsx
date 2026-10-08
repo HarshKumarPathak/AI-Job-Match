@@ -52,11 +52,11 @@ export default function Dashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("ai-job-match-candidate");
-    if (saved) setCandidateId(Number(saved));
-  }, []);
+    if (!candidateId) {
+      setLoading(false);
+      return;
+    }
 
-  useEffect(() => {
     const timer = window.setTimeout(() => {
       async function load() {
         try {
