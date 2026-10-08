@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import Job
+from app.services.auth import get_current_user
 from app.schemas.job import JobCreate, JobRead
 from app.services.job_aggregator import ingest_source
 from app.services.job_ingestion import save_job
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
 @router.post("", response_model=JobRead, status_code=201)
-def create_job(payload: JobCreate, db: Session = Depends(get_db)) -> Job:
+def create_job(payload: JobCreate, db: Session = Depends(get_db), _user=Depends(get_current_user)) -> Job:
     job = save_job(db, payload.model_dump())
     db.commit()
     db.refresh(job)
@@ -58,14 +59,14 @@ def list_jobs(
 
 
 @router.post("/ingest/demo")
-def ingest_demo_jobs(db: Session = Depends(get_db)) -> dict[str, int]:
+def ingest_demo_jobs(db: Session = Depends(get_db), _user=Depends(get_current_user)) -> dict[str, int]:
     count = ingest_source(db, DemoJobSource())
     db.commit()
     return {"source": "demo", "jobs_processed": count}
 
 
 @router.post("/ingest/arbeitnow")
-def ingest_arbeitnow_jobs(db: Session = Depends(get_db)) -> dict[str, int]:
+def ingest_arbeitnow_jobs(db: Session = Depends(get_db), _user=Depends(get_current_user)) -> dict[str, int]:
     count = ingest_source(db, ArbeitnowJobSource())
     db.commit()
     return {"source": "arbeitnow", "jobs_processed": count}
