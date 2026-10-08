@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.services.auth import get_current_user, require_candidate_access
 from app.schemas.skill_gap import SkillGapRead, SkillGapSummary
 from app.services.skill_gap import analyze_skill_gaps
 
@@ -13,7 +14,9 @@ def get_skill_gaps(
     candidate_id: int,
     job_limit: int = Query(default=10, ge=1, le=50),
     db: Session = Depends(get_db),
+    user = Depends(get_current_user),
 ) -> SkillGapSummary:
+    require_candidate_access(candidate_id, user)
     try:
         analyzed_jobs, gaps = analyze_skill_gaps(db, candidate_id, job_limit)
     except ValueError as exc:
