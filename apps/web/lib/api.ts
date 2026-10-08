@@ -232,6 +232,10 @@ export type AuthResponse = {
   email: string;
 };
 
+export async function getMe(): Promise<AuthResponse> {
+  return request<AuthResponse>(`${API_URL}/auth/me`, { cache: "no-store" });
+}
+
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const result = await request<AuthResponse>(`${API_URL}/auth/login`, {
     method: "POST",
