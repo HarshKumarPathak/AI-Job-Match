@@ -35,3 +35,5 @@ button:disabled{cursor:default;opacity:.65}
 
 .panelActions{display:flex;align-items:center;gap:10px}
 @media(max-width:600px){.panelActions{flex-wrap:wrap}}
+
+.jobTitleLink{color:inherit;text-decoration:none}.jobTitleLink:hover{text-decoration:underline}.jobDetail{max-width:900px;margin:40px auto}.backLink{display:inline-block;margin-bottom:24px;color:var(--accent);text-decoration:none;font-weight:700}.detailCompany{font-size:18px;color:var(--muted)}.description{white-space:pre-wrap;line-height:1.7;margin:16px 0 28px}.detailApply{display:inline-block}
