@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from app.config import settings
+
 from app.domain.candidate import CandidateProfile
 from app.domain.job import Job
 
@@ -22,6 +24,9 @@ def _normalize(values: set[str]) -> set[str]:
 def _text_similarity(candidate_text: str, job_text: str) -> float:
     if not candidate_text.strip() or not job_text.strip():
         return 0.0
+    if settings.matching_text_model.lower() == "semantic":
+        from app.services.semantic_matching import similarity
+        return similarity(candidate_text, job_text)
     matrix = TfidfVectorizer(stop_words="english").fit_transform([candidate_text, job_text])
     return float(cosine_similarity(matrix[0:1], matrix[1:2])[0, 0])
 
