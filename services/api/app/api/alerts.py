@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import Candidate, JobAlert
 from app.schemas.alert import AlertMatchRead, JobAlertCreate, JobAlertRead, JobAlertUpdate
-from app.services.recommendation_engine import recommend_jobs
+from app.services.alert_service import matching_alert_jobs
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 
@@ -62,17 +62,7 @@ def update_alert(
 
 @router.get("/{candidate_id}/matches", response_model=list[AlertMatchRead])
 def check_alert(candidate_id: int, db: Session = Depends(get_db)) -> list[AlertMatchRead]:
-    alert = db.scalar(
-        select(JobAlert)
-        .where(
-            JobAlert.candidate_id == candidate_id,
-            JobAlert.enabled.is_(True),
-        )
-        .order_by(JobAlert.created_at.desc())
-    )
-    if alert is None:
-        return []
-
+    _alert, matches = matching_alert_jobs(db, candidate_id)
     return [
         AlertMatchRead(
             job_id=item.job.id,
@@ -81,6 +71,5 @@ def check_alert(candidate_id: int, db: Session = Depends(get_db)) -> list[AlertM
             score=item.score,
             apply_url=item.job.apply_url,
         )
-        for item in recommend_jobs(db, candidate_id, 50)
-        if item.score >= alert.minimum_score
+        for item in matches
     ]
