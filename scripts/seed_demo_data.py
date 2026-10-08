@@ -10,9 +10,10 @@ sys.path.insert(0, str(API_DIR))
 
 from app.config import settings
 from app.db import Base
-from app.models import Candidate, CandidateSkill, Skill
+from app.models import Candidate, CandidateSkill, Skill, User
 from app.services.job_ingestion import save_job
 from app.services.skill_normalization import normalize_skill
+from app.services.auth import hash_password
 
 
 def main() -> None:
@@ -36,6 +37,16 @@ def main() -> None:
             db.add(candidate)
             db.flush()
 
+        demo_user = db.scalar(select(User).where(User.email == "demo@aijobmatch.local"))
+        if demo_user is None:
+            db.add(
+                User(
+                    email="demo@aijobmatch.local",
+                    password_hash=hash_password("Demo12345!"),
+                    candidate_id=candidate.id,
+                )
+            )
+
         for skill_name in ["Python", "SQL", "Machine Learning", "Pandas", "Git"]:
             normalized = normalize_skill(skill_name)
             skill = db.scalar(select(Skill).where(Skill.name == normalized))
@@ -57,6 +68,7 @@ def main() -> None:
 
         db.commit()
         print(f"Demo candidate id: {candidate.id}")
+        print("Demo login: demo@aijobmatch.local / Demo12345!")
         print(f"Seeded {len(jobs)} demo jobs.")
 
 
