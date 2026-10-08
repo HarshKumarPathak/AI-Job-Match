@@ -32,3 +32,6 @@
 button:disabled{cursor:default;opacity:.65}
 @media(max-width:850px){.filters.wide{grid-template-columns:1fr 1fr}.savedItem,.alertItem{grid-template-columns:1fr 1fr}.savedItem a{grid-column:1/-1}}
 @media(max-width:600px){.filters.wide,.alertForm{grid-template-columns:1fr;display:grid}.savedItem,.alertItem{grid-template-columns:1fr}}
+
+.panelActions{display:flex;align-items:center;gap:10px}
+@media(max-width:600px){.panelActions{flex-wrap:wrap}}
