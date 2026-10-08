@@ -9,6 +9,8 @@ export type Recommendation = {
   employment_type: string | null;
   source: string | null;
   apply_url: string | null;
+  salary_min: number | null;
+  salary_max: number | null;
   match_score: number;
   matched_skills: string[];
   missing_skills: string[];
