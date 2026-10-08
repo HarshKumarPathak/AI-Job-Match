@@ -8,6 +8,7 @@ from app.schemas.job import JobCreate, JobRead
 from app.services.job_aggregator import ingest_source
 from app.services.job_ingestion import save_job
 from app.services.job_sources import DemoJobSource
+from app.services.arbeitnow_source import ArbeitnowJobSource
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -53,3 +54,10 @@ def ingest_demo_jobs(db: Session = Depends(get_db)) -> dict[str, int]:
     count = ingest_source(db, DemoJobSource())
     db.commit()
     return {"source": "demo", "jobs_processed": count}
+
+
+@router.post("/ingest/arbeitnow")
+def ingest_arbeitnow_jobs(db: Session = Depends(get_db)) -> dict[str, int]:
+    count = ingest_source(db, ArbeitnowJobSource())
+    db.commit()
+    return {"source": "arbeitnow", "jobs_processed": count}
