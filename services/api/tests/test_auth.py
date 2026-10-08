@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from app.db import Base
@@ -28,4 +28,4 @@ def test_user_candidate_relationship_is_unique():
         db.flush()
         db.add(User(email="test@example.com", password_hash="hash", candidate_id=candidate.id))
         db.commit()
-        assert db.scalar(User.email.property.columns[0].type.python_type == str)
+        assert db.scalar(select(User).where(User.email == "test@example.com")).candidate_id == candidate.id
