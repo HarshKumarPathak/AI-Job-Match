@@ -3,6 +3,7 @@ from app.domain.job import Job
 from app.services.matching import explain_match
 
 
+
 def test_matching_uses_skills_role_and_text() -> None:
     candidate = CandidateProfile(
         skills={"python", "sql"},
@@ -24,6 +25,7 @@ def test_matching_uses_skills_role_and_text() -> None:
     assert result.missing_skills == ("docker",)
 
 
+
 def test_semantic_mode_uses_configured_service(monkeypatch) -> None:
     from app.config import settings
     from app.services import matching
@@ -36,6 +38,7 @@ def test_semantic_mode_uses_configured_service(monkeypatch) -> None:
     result = matching.explain_match(candidate, job)
 
     assert result.score == 21.0
+
 
 def test_experience_score_rewards_candidates_inside_role_range() -> None:
     candidate = CandidateProfile(experience_years=3)
@@ -52,6 +55,7 @@ def test_experience_score_rewards_candidates_inside_role_range() -> None:
 
     assert result.score == 5.0
     assert "Experience level fits the role" in result.reasons
+
 
 
 def test_experience_score_is_partial_below_required_minimum() -> None:
