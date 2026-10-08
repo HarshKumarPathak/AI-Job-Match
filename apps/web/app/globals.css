@@ -37,3 +37,7 @@ button:disabled{cursor:default;opacity:.65}
 @media(max-width:600px){.panelActions{flex-wrap:wrap}}
 
 .jobTitleLink{color:inherit;text-decoration:none}.jobTitleLink:hover{text-decoration:underline}.jobDetail{max-width:900px;margin:40px auto}.backLink{display:inline-block;margin-bottom:24px;color:var(--accent);text-decoration:none;font-weight:700}.detailCompany{font-size:18px;color:var(--muted)}.description{white-space:pre-wrap;line-height:1.7;margin:16px 0 28px}.detailApply{display:inline-block}
+
+.analyticsGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.analyticsGrid>div{padding:18px;border:1px solid var(--line);border-radius:14px}.analyticsGrid strong{display:block;font-size:28px}.analyticsGrid span{color:var(--muted);font-size:13px}
+.historyList{display:grid;gap:10px}.historyItem{display:grid;grid-template-columns:1.2fr 1fr auto;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:12px}.historyItem span{color:var(--muted);font-size:13px}.historyItem b{font-size:13px}
+@media(max-width:900px){.hero,.grid.two{display:block}.heroActions{margin-top:18px;flex-wrap:wrap}.filters.wide{flex-wrap:wrap}.filters input,.filters select{flex:1;min-width:150px}.analyticsGrid{grid-template-columns:1fr 1fr}.historyItem{grid-template-columns:1fr}.panel{margin-bottom:16px}}
