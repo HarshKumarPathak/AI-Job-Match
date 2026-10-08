@@ -1,4 +1,3 @@
-from sqlalchemy import delete, select
 from uuid import uuid4
 from sqlalchemy.orm import Session
 
@@ -12,7 +11,6 @@ def persist_recommendations(
     recommendations: list[RankedRecommendation],
 ) -> int:
     """Replace the candidate's latest recommendation snapshot."""
-    db.execute(delete(Recommendation).where(Recommendation.candidate_id == candidate_id))
     run_id = str(uuid4())
 
     for item in recommendations:
