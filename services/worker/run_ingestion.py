@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "api"))
 from app.services.job_aggregator import ingest_source
 from app.services.job_sources import DemoJobSource
 from app.services.arbeitnow_source import ArbeitnowJobSource
-from app.api.alerts import check_alert
-from app.models import JobAlert
+from app.models import Candidate, JobAlert, AlertNotification
+from app.services.alert_service import matching_alert_jobs, mark_new_notifications, send_alert_email
 
 
 def main() -> None:
@@ -38,10 +38,35 @@ def main() -> None:
         count = ingest_source(db, source)
         db.commit()
         alert_candidates = 0
-        for candidate_id in db.scalars(select(JobAlert.candidate_id).where(JobAlert.enabled.is_(True))).all():
-            alert_candidates += len(check_alert(candidate_id, db))
+        emails_sent = 0
+        for candidate_id in db.scalars(
+            select(JobAlert.candidate_id).where(JobAlert.enabled.is_(True))
+        ).all():
+            alert, matches = matching_alert_jobs(db, candidate_id)
+            if alert is None:
+                continue
+            new_matches = mark_new_notifications(db, alert, matches)
+            alert_candidates += len(new_matches)
+            if not new_matches:
+                continue
 
-    print(f"Ingested {count} jobs from {source.name}; {alert_candidates} alert matches found")
+            candidate = db.get(Candidate, candidate_id)
+            if candidate and send_alert_email(candidate, new_matches):
+                emails_sent += 1
+                for item in new_matches:
+                    db.add(
+                        AlertNotification(
+                            alert_id=alert.id,
+                            job_id=item.job.id,
+                            score=item.score,
+                        )
+                    )
+                db.commit()
+
+    print(
+        f"Ingested {count} jobs from {source.name}; "
+        f"{alert_candidates} new alert matches; {emails_sent} emails sent"
+    )
 
 
 if __name__ == "__main__":
