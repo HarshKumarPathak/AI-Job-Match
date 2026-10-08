@@ -48,6 +48,7 @@ export default function Dashboard() {
   const [alertMatches, setAlertMatches] = useState<AlertMatch[]>([]);
   const [alertScore, setAlertScore] = useState(70);
   const [alertOpen, setAlertOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("ai-job-match-candidate");
@@ -88,7 +89,7 @@ export default function Dashboard() {
       }
     }
     load();
-  }, [candidateId, search, remoteOnly, location, employmentType, source]);
+  }, [candidateId, search, remoteOnly, location, employmentType, source, refreshKey]);
 
   const savedJobs = useMemo(
     () => jobs.filter((job) => savedJobIds.has(job.job_id)),
@@ -112,6 +113,7 @@ export default function Dashboard() {
       window.localStorage.setItem("ai-job-match-candidate", String(candidate.id));
       setCandidateId(candidate.id);
       setProfileOpen(false);
+      setRefreshKey((value) => value + 1);
     } catch {
       setError("Profile save nahi hua. API check karo.");
     }
