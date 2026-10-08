@@ -10,6 +10,7 @@ from app.models.entities import (
     Resume,
     SavedJob,
     Skill,
+    User,
 )
 
 __all__ = [
@@ -24,4 +25,5 @@ __all__ = [
     "Resume",
     "SavedJob",
     "Skill",
+    "User",
 ]
