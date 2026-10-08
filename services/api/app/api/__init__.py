@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.alerts import router as alerts_router
+from app.api.auth import router as auth_router
 from app.api.candidates import router as candidates_router
 from app.api.jobs import router as jobs_router
 from app.api.learning import router as learning_router
@@ -11,6 +12,7 @@ from app.api.skill_gaps import router as skill_gaps_router
 from app.api.tracking import router as tracking_router
 
 router = APIRouter()
+router.include_router(auth_router)
 router.include_router(candidates_router)
 router.include_router(resumes_router)
 router.include_router(jobs_router)
