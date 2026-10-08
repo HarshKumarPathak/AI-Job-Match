@@ -15,12 +15,6 @@ class Example:
     relevant: set[str]
 
 
-EXAMPLES = (
-    Example("Python machine learning NLP backend development", ("Python backend API development", "Machine learning NLP engineer", "Frontend React developer", "Sales operations analyst"), {"1"}),
-    Example("SQL data analysis pandas dashboards", ("React frontend engineer", "Data analyst SQL pandas", "Java Android developer", "Graphic designer"), {"1"}),
-)
-
-
 def evaluate(model_name: str, scorer) -> dict[str, float | str]:
     rows = []
     for example in load_dataset():
@@ -34,7 +28,7 @@ def run_benchmark() -> list[dict[str, float | str]]:
     results = [evaluate("tfidf", tfidf_similarity)]
     try:
         from ml.matching.semantic import similarity as semantic_similarity
-    except ImportError:
+    except (ImportError, RuntimeError):
         return results
     results.append(evaluate("semantic", semantic_similarity))
     return results
