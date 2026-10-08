@@ -37,7 +37,8 @@ def create_alert(payload: JobAlertCreate, db: Session = Depends(get_db), user = 
 
 
 @router.get("/{candidate_id}", response_model=JobAlertRead | None)
-def get_alert(candidate_id: int, db: Session = Depends(get_db)) -> JobAlert | None:
+def get_alert(candidate_id: int, db: Session = Depends(get_db), user = Depends(get_current_user)) -> JobAlert | None:
+    require_candidate_access(candidate_id, user)
     return db.scalar(
         select(JobAlert)
         .where(JobAlert.candidate_id == candidate_id)
@@ -50,10 +51,12 @@ def update_alert(
     alert_id: int,
     payload: JobAlertUpdate,
     db: Session = Depends(get_db),
+    user = Depends(get_current_user),
 ) -> JobAlert:
     alert = db.get(JobAlert, alert_id)
     if alert is None:
         raise HTTPException(status_code=404, detail="Alert not found")
+    require_candidate_access(alert.candidate_id, user)
 
     alert.minimum_score = payload.minimum_score
     alert.enabled = payload.enabled
@@ -63,7 +66,8 @@ def update_alert(
 
 
 @router.get("/{candidate_id}/matches", response_model=list[AlertMatchRead])
-def check_alert(candidate_id: int, db: Session = Depends(get_db)) -> list[AlertMatchRead]:
+def check_alert(candidate_id: int, db: Session = Depends(get_db), user = Depends(get_current_user)) -> list[AlertMatchRead]:
+    require_candidate_access(candidate_id, user)
     _alert, matches = matching_alert_jobs(db, candidate_id)
     return [
         AlertMatchRead(
