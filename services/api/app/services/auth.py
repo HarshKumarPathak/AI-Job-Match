@@ -46,3 +46,8 @@ def get_current_user(
     if user is None:
         raise credentials_error
     return user
+
+
+def require_candidate_access(candidate_id: int, user: User) -> None:
+    if user.candidate_id != candidate_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Candidate access denied")
