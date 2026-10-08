@@ -108,7 +108,6 @@ export default function Dashboard() {
     try {
       const candidate = await createCandidate({
         name: String(form.get("name") ?? ""),
-        email: String(form.get("email") ?? ""),
         preferred_roles: String(form.get("roles") ?? "").split(",").map((x) => x.trim()).filter(Boolean),
         preferred_locations: String(form.get("locations") ?? "").split(",").map((x) => x.trim()).filter(Boolean),
         experience_years: Number(form.get("experience") ?? 0),
@@ -216,7 +215,6 @@ export default function Dashboard() {
           </div>
           <div className="formGrid">
             <input name="name" required placeholder="Name" />
-            <input name="email" type="email" required placeholder="Email" />
             <input name="roles" placeholder="Preferred roles (e.g. AI Engineer, Backend)" />
             <input name="locations" placeholder="Preferred locations (e.g. Remote, Bengaluru)" />
             <input name="experience" type="number" min="0" step="0.5" placeholder="Experience years" />
