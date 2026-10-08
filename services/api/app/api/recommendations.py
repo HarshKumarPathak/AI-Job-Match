@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.schemas.recommendation import RecommendationRead
 from app.services.recommendation_engine import recommend_jobs
 from app.services.recommendation_persistence import persist_recommendations
+from app.models import Recommendation
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
@@ -83,3 +85,29 @@ def refresh_recommendations(
     )
     persist_recommendations(db, candidate_id, recommendations)
     return [_to_response(item) for item in recommendations]
+
+
+@router.get("/{candidate_id}/history")
+def recommendation_history(
+    candidate_id: int,
+    limit: int = Query(default=10, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    rows = db.scalars(
+        select(Recommendation)
+        .where(Recommendation.candidate_id == candidate_id)
+        .order_by(Recommendation.created_at.desc())
+        .limit(limit * 20)
+    ).all()
+    return [
+        {
+            "id": row.id,
+            "run_id": row.run_id,
+            "job_id": row.job_id,
+            "score": row.score,
+            "matched_skills": [x.strip() for x in row.matched_skills.split(",") if x.strip()],
+            "missing_skills": [x.strip() for x in row.missing_skills.split(",") if x.strip()],
+            "created_at": row.created_at,
+        }
+        for row in rows
+    ]
