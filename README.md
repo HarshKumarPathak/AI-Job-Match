@@ -59,7 +59,7 @@ scripts/               # development utilities
 
 ## Development status
 
-Phase 1 — core product foundation implemented; semantic embeddings are optional and scheduled ingestion is included. Actual email/push notification delivery remains a future upgrade.
+Phase 1 — core product foundation implemented; semantic embeddings are optional and scheduled ingestion is included. Email alert delivery is implemented as an optional SMTP integration; it stays disabled until SMTP settings are configured. Alert notifications are deduplicated per alert/job.
 
 ## Engineering principles
 
@@ -201,6 +201,8 @@ This gives the project a measurable ML baseline that can later be compared with 
 
 ## Current API areas
 
+- `/auth/register`, `/auth/login`, `/auth/me`
+  - JWT authentication with password hashing
 - `/candidates`
 - `/candidates/{candidate_id}/resumes`
 - `/jobs`
@@ -217,7 +219,7 @@ The demo job source is intentionally local. Real job adapters can be added indep
 
 ## Current implementation status
 
-The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, recommendation history, and threshold-based job alerts. The default matcher remains intentionally explainable: skills (55%), TF-IDF text similarity (20%), preferred role (15%), and location (10%). Optional sentence-transformer semantic matching and an evaluation suite are also included.
+The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, recommendation history, and threshold-based job alerts. The default matcher remains intentionally explainable: skills (50%), TF-IDF text similarity (20%), preferred role (15%), location (10%), and experience compatibility (5%). Optional sentence-transformer semantic matching and an evaluation suite are also included.
 
 ### What is deliberately not claimed yet
 
@@ -292,3 +294,26 @@ The scheduled ingestion runner evaluates enabled match-score alerts immediately 
 ingestion and reports how many matching jobs were found. Actual email/push delivery is
 still intentionally not implemented; adding a notification provider later does not
 require changing the matching engine.
+
+
+### Authentication
+
+The app now supports account registration and login. The API issues short-lived JWT bearer tokens and stores only password hashes. Candidate-specific APIs verify that the authenticated account owns the requested candidate profile.
+
+For local development, scripts/seed_demo_data.py also creates:
+- Email: demo@aijobmatch.local
+- Password: Demo12345!
+
+### Email alerts
+
+Set SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM, and SMTP_USE_TLS to enable email delivery from the scheduled ingestion worker. Without SMTP configuration, alert detection still works in the dashboard/API but no email is sent.
+
+### Current recommendation scoring
+
+| Component | Weight |
+| --- | ---: |
+| Skill overlap | 50% |
+| Resume/job text similarity | 20% |
+| Preferred role | 15% |
+| Location | 10% |
+| Experience compatibility | 5% |
