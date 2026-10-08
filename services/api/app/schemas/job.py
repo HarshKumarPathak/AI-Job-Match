@@ -11,6 +11,10 @@ class JobCreate(BaseModel):
     employment_type: str | None = None
     apply_url: str | None = None
     source: str | None = None
+    salary_min: float | None = None
+    salary_max: float | None = None
+    experience_min_years: float | None = None
+    experience_max_years: float | None = None
     skills: list[str] = Field(default_factory=list)
 
 
