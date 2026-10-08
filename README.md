@@ -44,8 +44,6 @@ apps/
 services/
   api/                 # FastAPI backend
   worker/              # background jobs
-packages/
-  shared/              # shared schemas/constants
 ml/
   resume/              # resume extraction
   matching/            # ranking + recommendation
@@ -220,7 +218,7 @@ The demo job source is intentionally local. Real job adapters can be added indep
 
 ## Current implementation status
 
-The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, recommendation history, application analytics, and threshold-based job alerts. The default matcher remains intentionally explainable: skills (50%), TF-IDF text similarity (20%), preferred role (15%), location (10%), and experience compatibility (5%). Optional sentence-transformer semantic matching and an evaluation suite are also included.
+The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, recommendation history, application analytics, and threshold-based job alerts. Job creation and ingestion writes require an authenticated account; public job reads remain available for the dashboard. The default matcher remains intentionally explainable: skills (50%), TF-IDF text similarity (20%), preferred role (15%), location (10%), and experience compatibility (5%). Optional sentence-transformer semantic matching and an evaluation suite are also included.
 
 ### What is deliberately not claimed yet
 
@@ -292,12 +290,12 @@ recommendations change as a candidate profile or job dataset changes.
 ## Current alert behavior
 
 The scheduled ingestion runner evaluates enabled match-score alerts immediately after
-ingestion and reports how many matching jobs were found. Optional SMTP email delivery is implemented; push notifications are not implemented. Notification delivery is kept separate from the matching engine.
+ingestion and records each alert/job detection once. Optional SMTP email delivery is implemented on top of that detection state; push notifications are not implemented. Notification delivery is kept separate from the matching engine.
 
 
 ### Authentication
 
-The app now supports account registration and login. The API issues short-lived JWT bearer tokens and stores only password hashes. Candidate-specific APIs verify that the authenticated account owns the requested candidate profile.
+The app now supports account registration and login. The API issues configurable-expiry JWT bearer tokens and stores only password hashes. Candidate-specific APIs verify that the authenticated account owns the requested candidate profile.
 
 For local development, scripts/seed_demo_data.py also creates:
 - Email: demo@aijobmatch.local
@@ -316,3 +314,13 @@ Set SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM, and SMTP_USE_
 | Preferred role | 15% |
 | Location | 10% |
 | Experience compatibility | 5% |
+
+
+## Security and validation notes
+
+- Candidate-specific recommendation, tracking, alert, resume, and profile endpoints enforce authenticated candidate ownership.
+- Job write/ingestion endpoints require authentication; job detail/list reads remain public for the dashboard.
+- Passwords are stored as Argon2 hashes rather than plaintext.
+- Alert detections are deduplicated by alert + job, even when SMTP email delivery is disabled.
+- The repository includes regression coverage for authentication helpers, candidate serialization, recommendation history, alert deduplication, experience compatibility, job filters, ingestion, and matching behavior.
+- GitHub Actions checks Python lint/tests, the Next.js production build, and Docker Compose configuration on pushes and pull requests.
