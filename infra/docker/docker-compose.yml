@@ -46,6 +46,7 @@ services:
       SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
     ports:
       - "8000:8000"
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,6 +81,7 @@ services:
       SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
       INGEST_INTERVAL_MINUTES: 360
     command: ["python", "services/worker/scheduled_ingestion.py"]
+    restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy
@@ -93,6 +95,7 @@ services:
       API_INTERNAL_URL: http://api:8000
     ports:
       - "3000:3000"
+    restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy
