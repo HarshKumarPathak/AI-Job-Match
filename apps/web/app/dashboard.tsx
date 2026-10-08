@@ -62,7 +62,8 @@ export default function Dashboard() {
         try {
           setLoading(true);
           setError("");
-          const [recommendations, skillGaps, tracked, saved, existingAlert] = await Promise.all([
+          const [candidate, recommendations, skillGaps, tracked, saved, existingAlert] = await Promise.all([
+            getCandidate(candidateId),
             getRecommendations(candidateId, {
               q: search || undefined,
               remote: remoteOnly ? true : undefined,
@@ -75,6 +76,13 @@ export default function Dashboard() {
             getSavedJobs(candidateId),
             getAlert(candidateId),
           ]);
+          setProfile({
+            name: candidate.name ?? "",
+            roles: candidate.preferred_roles.join(", "),
+            locations: candidate.preferred_locations.join(", "),
+            experience: candidate.experience_years,
+            education: candidate.education ?? "",
+          });
           setJobs(recommendations);
           setGaps(skillGaps);
           setApplications(tracked);
@@ -214,11 +222,11 @@ export default function Dashboard() {
             <button type="button" onClick={() => setProfileOpen(false)}>Close</button>
           </div>
           <div className="formGrid">
-            <input name="name" required placeholder="Name" />
-            <input name="roles" placeholder="Preferred roles (e.g. AI Engineer, Backend)" />
-            <input name="locations" placeholder="Preferred locations (e.g. Remote, Bengaluru)" />
-            <input name="experience" type="number" min="0" step="0.5" placeholder="Experience years" />
-            <input name="education" placeholder="Education" />
+            <input name="name" required placeholder="Name" defaultValue={profile.name} />
+            <input name="roles" placeholder="Preferred roles (e.g. AI Engineer, Backend)" defaultValue={profile.roles} />
+            <input name="locations" placeholder="Preferred locations (e.g. Remote, Bengaluru)" defaultValue={profile.locations} />
+            <input name="experience" type="number" min="0" step="0.5" placeholder="Experience years" defaultValue={profile.experience} />
+            <input name="education" placeholder="Education" defaultValue={profile.education} />
             <label className="fileInput">Resume (PDF/DOCX/TXT)<input name="resume" type="file" accept=".pdf,.docx,.txt" /></label>
           </div>
           <button className="primary" type="submit">Save profile & resume</button>
