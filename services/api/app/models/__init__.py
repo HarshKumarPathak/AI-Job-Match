@@ -1,4 +1,5 @@
 from app.models.entities import (
+    AlertNotification,
     Application,
     Candidate,
     CandidateSkill,
@@ -12,6 +13,7 @@ from app.models.entities import (
 )
 
 __all__ = [
+    "AlertNotification",
     "Application",
     "Candidate",
     "CandidateSkill",
