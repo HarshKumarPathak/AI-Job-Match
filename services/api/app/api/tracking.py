@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.services.auth import get_current_user, require_candidate_access
 from app.models import Application, Candidate, Job, SavedJob
 from app.schemas.tracking import ApplicationCreate, ApplicationRead, ApplicationUpdate, SavedJobCreate, SavedJobRead
 
@@ -19,7 +20,8 @@ def _check_candidate_job(db: Session, candidate_id: int, job_id: int) -> None:
 
 
 @router.post("/saved", response_model=SavedJobRead, status_code=201)
-def save_job_for_candidate(payload: SavedJobCreate, db: Session = Depends(get_db)) -> SavedJob:
+def save_job_for_candidate(payload: SavedJobCreate, db: Session = Depends(get_db), user = Depends(get_current_user)) -> SavedJob:
+    require_candidate_access(payload.candidate_id, user)
     _check_candidate_job(db, payload.candidate_id, payload.job_id)
     existing = db.scalar(select(SavedJob).where(
         SavedJob.candidate_id == payload.candidate_id,
