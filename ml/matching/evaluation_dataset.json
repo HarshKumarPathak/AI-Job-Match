@@ -1,0 +1,32 @@
+[
+  {
+    "candidate": "Python machine learning NLP backend development",
+    "jobs": ["Python backend API development", "Machine learning NLP engineer", "Frontend React developer", "Sales operations analyst"],
+    "relevant": ["0", "1"]
+  },
+  {
+    "candidate": "SQL data analysis pandas dashboards",
+    "jobs": ["React frontend engineer", "Data analyst SQL pandas", "Java Android developer", "Graphic designer"],
+    "relevant": ["1"]
+  },
+  {
+    "candidate": "FastAPI Python PostgreSQL Docker backend",
+    "jobs": ["Python FastAPI backend engineer", "React UI developer", "Data analyst SQL", "Product designer"],
+    "relevant": ["0"]
+  },
+  {
+    "candidate": "React TypeScript Next.js frontend",
+    "jobs": ["Node.js backend engineer", "React TypeScript frontend developer", "Python data scientist", "DevOps engineer"],
+    "relevant": ["1"]
+  },
+  {
+    "candidate": "generative AI Python LLM NLP",
+    "jobs": ["Java backend developer", "LLM application engineer Python", "UI UX designer", "SQL analyst"],
+    "relevant": ["1"]
+  },
+  {
+    "candidate": "PostgreSQL SQL data engineering Python",
+    "jobs": ["Data engineer SQL Python", "Mobile Android developer", "Frontend React engineer", "Graphic designer"],
+    "relevant": ["0"]
+  }
+]
