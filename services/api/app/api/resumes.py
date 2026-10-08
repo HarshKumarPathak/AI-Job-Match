@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.services.auth import get_current_user, require_candidate_access
 from app.models import Candidate, CandidateSkill, Resume, Skill
 from app.schemas.resume import ResumeRead
 from app.services.resume_parser import extract_text
@@ -16,8 +17,10 @@ router = APIRouter(prefix="/candidates/{candidate_id}/resumes", tags=["resumes"]
 async def upload_resume(
     candidate_id: int,
     file: UploadFile = File(...),
+    user = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> ResumeRead:
+    require_candidate_access(candidate_id, user)
     candidate = db.get(Candidate, candidate_id)
     if candidate is None:
         raise HTTPException(status_code=404, detail="Candidate not found")
