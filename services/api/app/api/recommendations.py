@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.services.auth import get_current_user, require_candidate_access
 from app.models import Recommendation
 from app.schemas.recommendation import RecommendationRead
 from app.services.recommendation_engine import recommend_jobs
@@ -63,7 +64,9 @@ def get_recommendations(
     employment_type: str | None = None,
     source: str | None = None,
     db: Session = Depends(get_db),
+    user = Depends(get_current_user),
 ) -> list[RecommendationRead]:
+    require_candidate_access(candidate_id, user)
     return [
         _to_response(item)
         for item in _rank(db, candidate_id, limit, q, remote, location, employment_type, source)
@@ -81,6 +84,7 @@ def refresh_recommendations(
     source: str | None = None,
     db: Session = Depends(get_db),
 ) -> list[RecommendationRead]:
+    require_candidate_access(candidate_id, user)
     recommendations = _rank(
         db, candidate_id, limit, q, remote, location, employment_type, source
     )
