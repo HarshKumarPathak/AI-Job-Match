@@ -8,18 +8,20 @@ import argparse
 import os
 import sys
 
-from sqlalchemy import select
-
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "api"))
 
+from app.models import AlertNotification, Candidate, JobAlert
+from app.services.alert_service import (
+    mark_new_notifications,
+    matching_alert_jobs,
+    send_alert_email,
+)
+from app.services.arbeitnow_source import ArbeitnowJobSource
 from app.services.job_aggregator import ingest_source
 from app.services.job_sources import DemoJobSource
-from app.services.arbeitnow_source import ArbeitnowJobSource
-from app.models import Candidate, JobAlert, AlertNotification
-from app.services.alert_service import matching_alert_jobs, mark_new_notifications, send_alert_email
 
 
 def main() -> None:
@@ -53,15 +55,18 @@ def main() -> None:
             candidate = db.get(Candidate, candidate_id)
             if candidate and send_alert_email(candidate, new_matches):
                 emails_sent += 1
-                for item in new_matches:
-                    db.add(
-                        AlertNotification(
-                            alert_id=alert.id,
-                            job_id=item.job.id,
-                            score=item.score,
-                        )
+
+            # Record detection even when SMTP is disabled so the same job is not
+            # treated as "new" on every scheduler cycle.
+            for item in new_matches:
+                db.add(
+                    AlertNotification(
+                        alert_id=alert.id,
+                        job_id=item.job.id,
+                        score=item.score,
                     )
-                db.commit()
+                )
+            db.commit()
 
     print(
         f"Ingested {count} jobs from {source.name}; "
