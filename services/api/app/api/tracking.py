@@ -37,14 +37,16 @@ def save_job_for_candidate(payload: SavedJobCreate, db: Session = Depends(get_db
 
 
 @router.get("/saved/{candidate_id}", response_model=list[SavedJobRead])
-def list_saved_jobs(candidate_id: int, db: Session = Depends(get_db)) -> list[SavedJob]:
+def list_saved_jobs(candidate_id: int, db: Session = Depends(get_db), user = Depends(get_current_user)) -> list[SavedJob]:
+    require_candidate_access(candidate_id, user)
     return list(db.scalars(
         select(SavedJob).where(SavedJob.candidate_id == candidate_id).order_by(SavedJob.created_at.desc())
     ).all())
 
 
 @router.post("/applications", response_model=ApplicationRead, status_code=201)
-def create_application(payload: ApplicationCreate, db: Session = Depends(get_db)) -> Application:
+def create_application(payload: ApplicationCreate, db: Session = Depends(get_db), user = Depends(get_current_user)) -> Application:
+    require_candidate_access(payload.candidate_id, user)
     _check_candidate_job(db, payload.candidate_id, payload.job_id)
     existing = db.scalar(select(Application).where(
         Application.candidate_id == payload.candidate_id,
@@ -69,17 +71,19 @@ def create_application(payload: ApplicationCreate, db: Session = Depends(get_db)
 
 
 @router.get("/applications/{candidate_id}", response_model=list[ApplicationRead])
-def list_applications(candidate_id: int, db: Session = Depends(get_db)) -> list[Application]:
+def list_applications(candidate_id: int, db: Session = Depends(get_db), user = Depends(get_current_user)) -> list[Application]:
+    require_candidate_access(candidate_id, user)
     return list(db.scalars(
         select(Application).where(Application.candidate_id == candidate_id).order_by(Application.updated_at.desc())
     ).all())
 
 
 @router.patch("/applications/{application_id}", response_model=ApplicationRead)
-def update_application(application_id: int, payload: ApplicationUpdate, db: Session = Depends(get_db)) -> Application:
+def update_application(application_id: int, payload: ApplicationUpdate, db: Session = Depends(get_db), user = Depends(get_current_user)) -> Application:
     item = db.get(Application, application_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Application not found")
+    require_candidate_access(item.candidate_id, user)
     item.status = payload.status
     item.notes = payload.notes
     if payload.status == "applied" and item.applied_at is None:
