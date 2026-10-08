@@ -95,6 +95,8 @@ The backend currently supports:
 - Basic explainable skill extraction and normalization
 - Job ingestion with source/external-ID deduplication
 - Candidate-to-job match scoring
+- Job detail pages with salary/experience metadata when available
+- Timestamped recommendation history
 - Ranked job recommendations with matched and missing skills
 
 The recommendation flow is intentionally simple at this stage so it can be tested and improved incrementally before adding semantic embeddings.
@@ -223,3 +225,70 @@ The current baseline includes a working explainable recommendation flow, resume 
 - Alerts currently check the existing job dataset on demand. Email/push delivery and scheduled background notifications are future work.
 - Semantic embeddings are not part of the baseline yet. They can be added later and compared against the TF-IDF/hybrid baseline using the evaluation utilities in `ml/matching`.
 
+
+
+## One-command local startup
+
+With Docker Desktop running, Windows users can start the full stack with:
+
+```powershell
+.\scripts\start-all.ps1
+```
+
+Or from any shell:
+
+```bash
+docker compose -f infra/docker/docker-compose.yml up --build
+```
+
+The Compose stack starts PostgreSQL, Redis, FastAPI, Next.js, and a scheduler-friendly
+ingestion service. PostgreSQL and Redis use healthchecks, and the API waits for
+PostgreSQL/Redis readiness before starting. Docker Compose supports healthcheck-based
+`depends_on` conditions for this startup pattern.
+
+The scheduler runs the configured public job source every 6 hours by default
+(`INGEST_INTERVAL_MINUTES=360`). Change that environment value if you want a different
+interval.
+
+## Matching evaluation
+
+The repository now includes a labelled dataset at `ml/matching/evaluation_dataset.json`
+with multiple candidate/job ranking cases. The evaluation utilities compare:
+
+- TF-IDF lexical similarity
+- Sentence-transformer semantic similarity
+- A simple hybrid of lexical + semantic similarity
+
+Metrics include Precision@K, Recall@K, NDCG@K, and MRR.
+
+Run the report from the repository root after installing the optional semantic dependency:
+
+```powershell
+cd services/api
+pip install -e ".[semantic]"
+cd ../..
+$env:PYTHONPATH="."
+python ml/matching/evaluation_report.py
+```
+
+The benchmark is intentionally a small labelled dataset, so its numbers are useful for
+project experimentation rather than a claim of production-grade model performance.
+
+## Recommendation history
+
+Every manual recommendation refresh gets a unique run ID and is retained in the
+`recommendations` table. History can be inspected through:
+
+```text
+GET /recommendations/{candidate_id}/history
+```
+
+This lets the project evolve from a one-shot ranking demo toward measuring how
+recommendations change as a candidate profile or job dataset changes.
+
+## Current alert behavior
+
+The scheduled ingestion runner evaluates enabled match-score alerts immediately after
+ingestion and reports how many matching jobs were found. Actual email/push delivery is
+still intentionally not implemented; adding a notification provider later does not
+require changing the matching engine.
