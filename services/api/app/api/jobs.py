@@ -15,7 +15,11 @@ router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
 @router.post("", response_model=JobRead, status_code=201)
-def create_job(payload: JobCreate, db: Session = Depends(get_db), _user=Depends(get_current_user)) -> Job:
+def create_job(
+    payload: JobCreate,
+    db: Session = Depends(get_db),
+    _user=Depends(get_current_user),
+) -> Job:
     job = save_job(db, payload.model_dump())
     db.commit()
     db.refresh(job)
