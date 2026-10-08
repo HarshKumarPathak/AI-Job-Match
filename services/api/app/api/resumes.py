@@ -11,6 +11,7 @@ from app.services.skill_extractor import extract_skills
 from app.services.resume_profile import infer_profile
 
 router = APIRouter(prefix="/candidates/{candidate_id}/resumes", tags=["resumes"])
+MAX_RESUME_BYTES = 5 * 1024 * 1024
 
 
 @router.post("", response_model=ResumeRead, status_code=201)
@@ -26,6 +27,9 @@ async def upload_resume(
         raise HTTPException(status_code=404, detail="Candidate not found")
 
     data = await file.read()
+    if len(data) > MAX_RESUME_BYTES:
+        raise HTTPException(status_code=413, detail="Resume file is too large (maximum 5 MB)")
+
     try:
         text = extract_text(file.filename or "resume.txt", data)
     except ValueError as exc:
