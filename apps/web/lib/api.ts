@@ -67,7 +67,10 @@ export type AlertMatch = {
 };
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const token = typeof window !== "undefined" ? window.localStorage.getItem("ai-job-match-token") : null;
+  const token =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem("ai-job-match-token")
+      : null;
   const headers = new Headers(init?.headers);
   if (token) headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(url, { ...init, headers });
@@ -77,7 +80,13 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export async function getRecommendations(
   candidateId: number,
-  filters: { q?: string; remote?: boolean; location?: string; employmentType?: string; source?: string } = {},
+  filters: {
+    q?: string;
+    remote?: boolean;
+    location?: string;
+    employmentType?: string;
+    source?: string;
+  } = {},
 ): Promise<Recommendation[]> {
   const params = new URLSearchParams({ limit: "20" });
   if (filters.q) params.set("q", filters.q);
@@ -94,7 +103,13 @@ export async function getRecommendations(
 
 export async function refreshRecommendations(
   candidateId: number,
-  filters: { q?: string; remote?: boolean; location?: string; employmentType?: string; source?: string } = {},
+  filters: {
+    q?: string;
+    remote?: boolean;
+    location?: string;
+    employmentType?: string;
+    source?: string;
+  } = {},
 ): Promise<Recommendation[]> {
   const params = new URLSearchParams({ limit: "20" });
   if (filters.q) params.set("q", filters.q);
@@ -110,10 +125,11 @@ export async function refreshRecommendations(
 }
 
 export async function getSkillGaps(candidateId: number): Promise<SkillGap[]> {
-  const data = await request<{ candidate_id: number; analyzed_jobs: number; gaps: SkillGap[] }>(
-    `${API_URL}/skill-gaps/${candidateId}?job_limit=10`,
-    { cache: "no-store" },
-  );
+  const data = await request<{
+    candidate_id: number;
+    analyzed_jobs: number;
+    gaps: SkillGap[];
+  }>(`${API_URL}/skill-gaps/${candidateId}?job_limit=10`, { cache: "no-store" });
   return data.gaps;
 }
 
@@ -126,7 +142,6 @@ export async function getLearningResources(skills: string[]): Promise<LearningRe
 
 export async function createCandidate(payload: {
   name: string;
-  email: string;
   preferred_roles: string[];
   preferred_locations: string[];
   experience_years: number;
@@ -182,10 +197,7 @@ export async function updateApplication(
 }
 
 export async function getAlert(candidateId: number): Promise<JobAlert | null> {
-  const response = await fetch(`${API_URL}/alerts/${candidateId}`, { cache: "no-store" });
-  if (response.status === 404) return null;
-  if (!response.ok) throw new Error("Could not load alert");
-  return response.json();
+  return request<JobAlert | null>(`${API_URL}/alerts/${candidateId}`, { cache: "no-store" });
 }
 
 export async function createOrUpdateAlert(candidateId: number, minimumScore: number): Promise<JobAlert> {
@@ -211,7 +223,6 @@ export async function updateAlert(
 export async function checkAlert(candidateId: number): Promise<AlertMatch[]> {
   return request<AlertMatch[]>(`${API_URL}/alerts/${candidateId}/matches`, { cache: "no-store" });
 }
-
 
 export type AuthResponse = {
   access_token: string;
