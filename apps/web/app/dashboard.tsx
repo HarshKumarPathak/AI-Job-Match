@@ -56,11 +56,12 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true);
-        setError("");
-        const [recommendations, skillGaps, tracked, saved, existingAlert] = await Promise.all([
+    const timer = window.setTimeout(() => {
+      async function load() {
+        try {
+          setLoading(true);
+          setError("");
+          const [recommendations, skillGaps, tracked, saved, existingAlert] = await Promise.all([
           getRecommendations(candidateId, {
             q: search || undefined,
             remote: remoteOnly ? true : undefined,
@@ -88,7 +89,11 @@ export default function Dashboard() {
         setLoading(false);
       }
     }
-    load();
+        load();
+      }
+    }, 300);
+
+    return () => window.clearTimeout(timer);
   }, [candidateId, search, remoteOnly, location, employmentType, source, refreshKey]);
 
   const savedJobs = useMemo(
