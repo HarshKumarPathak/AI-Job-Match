@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Dashboard from "./dashboard";
-import { login, register } from "../lib/api";
+import { getMe, login, register, logout } from "../lib/api";
 
 export default function Home() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -11,8 +11,22 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setAuthenticated(Boolean(window.localStorage.getItem("ai-job-match-token")));
-    setLoading(false);
+    const token = window.localStorage.getItem("ai-job-match-token");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    void getMe()
+      .then((result) => {
+        window.localStorage.setItem("ai-job-match-candidate", String(result.candidate_id));
+        setAuthenticated(true);
+      })
+      .catch(() => {
+        logout();
+        setAuthenticated(false);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <main className="shell"><p>Loading...</p></main>;
