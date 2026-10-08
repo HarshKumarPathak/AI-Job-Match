@@ -1,4 +1,5 @@
 from uuid import uuid4
+
 from sqlalchemy.orm import Session
 
 from app.models import Recommendation
@@ -10,7 +11,7 @@ def persist_recommendations(
     candidate_id: int,
     recommendations: list[RankedRecommendation],
 ) -> int:
-    """Replace the candidate's latest recommendation snapshot."""
+    """Persist one recommendation run so later runs can be compared."""
     run_id = str(uuid4())
 
     for item in recommendations:
