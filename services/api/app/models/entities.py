@@ -127,3 +127,15 @@ class JobAlert(Base):
     minimum_score: Mapped[float] = mapped_column(Float, default=70.0)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class AlertNotification(Base):
+    __tablename__ = "alert_notifications"
+    __table_args__ = (
+        UniqueConstraint("alert_id", "job_id", name="uq_alert_notification"),
+    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    alert_id: Mapped[int] = mapped_column(ForeignKey("job_alerts.id", ondelete="CASCADE"), index=True)
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"), index=True)
+    score: Mapped[float] = mapped_column(Float)
+    sent_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
