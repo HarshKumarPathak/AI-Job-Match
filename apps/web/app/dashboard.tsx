@@ -14,6 +14,7 @@ import {
   getAlert,
   getLearningResources,
   getRecommendations,
+  refreshRecommendations,
   getSavedJobs,
   getSkillGaps,
   saveJob,
@@ -146,6 +147,25 @@ export default function Dashboard() {
     }
   }
 
+  async function handleRefreshRecommendations() {
+    try {
+      setLoading(true);
+      setError("");
+      const refreshed = await refreshRecommendations(candidateId, {
+        q: search || undefined,
+        remote: remoteOnly ? true : undefined,
+        location: location || undefined,
+        employmentType: employmentType || undefined,
+        source: source || undefined,
+      });
+      setJobs(refreshed);
+    } catch {
+      setError("Recommendations refresh nahi hue. API check karo.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleAlert() {
     try {
       const updated = await createOrUpdateAlert(candidateId, alertScore);
@@ -235,7 +255,10 @@ export default function Dashboard() {
         <div className="panel">
           <div className="panelHead">
             <div><p className="eyebrow">RECOMMENDATIONS</p><h2>Best matches</h2></div>
-            <span className="muted">{jobs.length} results</span>
+            <div className="panelActions">
+              <span className="muted">{jobs.length} results</span>
+              <button className="secondary" onClick={handleRefreshRecommendations}>Refresh matches</button>
+            </div>
           </div>
           <div className="jobList">
             {jobs.map((job) => (
