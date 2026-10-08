@@ -1,8 +1,8 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from app.db import Base
-from app.models import Job
+from app.models import Job, JobSkill, Skill
 from app.services.job_ingestion import save_job
 
 
@@ -65,3 +65,41 @@ def test_job_metadata_is_updated_on_reingestion():
         assert updated.salary_max == 100000
         assert updated.experience_min_years == 2
         assert updated.experience_max_years == 4
+
+
+def test_job_skills_are_replaced_on_reingestion():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+
+    with Session(engine) as db:
+        first = save_job(
+            db,
+            {
+                "external_id": "job-skills-1",
+                "source": "test",
+                "title": "Backend Engineer",
+                "company": "Example",
+                "skills": ["Python", "SQL"],
+            },
+        )
+        db.commit()
+
+        save_job(
+            db,
+            {
+                "external_id": "job-skills-1",
+                "source": "test",
+                "title": "Backend Engineer",
+                "company": "Example",
+                "skills": ["Python", "Docker"],
+            },
+        )
+        db.commit()
+
+        names = db.scalars(
+            select(Skill.name)
+            .join(JobSkill, JobSkill.skill_id == Skill.id)
+            .where(JobSkill.job_id == first.id)
+        ).all()
+
+        assert set(names) == {"python", "docker"}
