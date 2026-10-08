@@ -149,7 +149,7 @@ npm run dev
 
 Dashboard: http://localhost:3000
 
-The dashboard can create a candidate profile, upload a resume, show ranked jobs, filter them, explain matched/missing skills, highlight skill gaps, link to learning resources, save jobs, track application status, and configure match-score alerts.
+The dashboard can create a candidate profile, upload a resume, show ranked jobs, filter them, explain matched/missing skills, highlight skill gaps, link to learning resources, save jobs, track application status, review application analytics and recommendation history, and configure match-score alerts.
 
 ### Current product flow
 
@@ -220,7 +220,7 @@ The demo job source is intentionally local. Real job adapters can be added indep
 
 ## Current implementation status
 
-The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, recommendation history, and threshold-based job alerts. The default matcher remains intentionally explainable: skills (50%), TF-IDF text similarity (20%), preferred role (15%), location (10%), and experience compatibility (5%). Optional sentence-transformer semantic matching and an evaluation suite are also included.
+The current baseline includes a working explainable recommendation flow, resume parsing, normalized job ingestion, search/filtering, skill-gap analysis, learning resources, saved jobs, application tracking, recommendation history, application analytics, and threshold-based job alerts. The default matcher remains intentionally explainable: skills (50%), TF-IDF text similarity (20%), preferred role (15%), location (10%), and experience compatibility (5%). Optional sentence-transformer semantic matching and an evaluation suite are also included.
 
 ### What is deliberately not claimed yet
 
@@ -292,9 +292,7 @@ recommendations change as a candidate profile or job dataset changes.
 ## Current alert behavior
 
 The scheduled ingestion runner evaluates enabled match-score alerts immediately after
-ingestion and reports how many matching jobs were found. Actual email/push delivery is
-still intentionally not implemented; adding a notification provider later does not
-require changing the matching engine.
+ingestion and reports how many matching jobs were found. Optional SMTP email delivery is implemented; push notifications are not implemented. Notification delivery is kept separate from the matching engine.
 
 
 ### Authentication
