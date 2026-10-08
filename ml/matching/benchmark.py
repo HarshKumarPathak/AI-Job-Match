@@ -1,6 +1,8 @@
 """Small labelled benchmark for comparing lexical and semantic ranking."""
 
 from dataclasses import dataclass
+import json
+from pathlib import Path
 
 from ml.matching.evaluation import ndcg_at_k, precision_at_k, recall_at_k, reciprocal_rank
 from ml.matching.semantic import similarity as semantic_similarity
@@ -22,7 +24,7 @@ EXAMPLES = (
 
 def evaluate(model_name: str, scorer) -> dict[str, float | str]:
     rows = []
-    for example in EXAMPLES:
+    for example in load_dataset():
         scored = [(str(index), scorer(example.candidate, job)) for index, job in enumerate(example.jobs)]
         ranked = [index for index, _ in sorted(scored, key=lambda item: item[1], reverse=True)]
         rows.append({"precision@3": precision_at_k(example.relevant, ranked, 3), "recall@3": recall_at_k(example.relevant, ranked, 3), "ndcg@3": ndcg_at_k(example.relevant, ranked, 3), "mrr": reciprocal_rank(example.relevant, ranked)})
@@ -36,3 +38,11 @@ def run_benchmark() -> list[dict[str, float | str]]:
 if __name__ == "__main__":
     for row in run_benchmark():
         print(row)
+
+def load_dataset() -> tuple[Example, ...]:
+    path = Path(__file__).with_name("evaluation_dataset.json")
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    return tuple(
+        Example(row["candidate"], tuple(row["jobs"]), set(row["relevant"]))
+        for row in rows
+    )
