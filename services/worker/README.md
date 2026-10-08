@@ -9,8 +9,9 @@ From the repository root:
 powershell
 $env:PYTHONPATH="services/api"
 python services/worker/run_ingestion.py --source demo
+python services/worker/run_ingestion.py --source arbeitnow
 
-The current bundled source is the local demo source. Real providers should be added
+The bundled sources are the local demo source and the documented Arbeitnow API. Real providers should be added
 as JobSource adapters only when their official API/feed/public endpoint permits use.
 
 The runner commits normalized and deduplicated jobs through the same ingestion service
