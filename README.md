@@ -222,3 +222,4 @@ The current baseline includes a working explainable recommendation flow, resume 
 - No live external job provider is bundled by default; the demo source is local.
 - Alerts currently check the existing job dataset on demand. Email/push delivery and scheduled background notifications are future work.
 - Semantic embeddings are not part of the baseline yet. They can be added later and compared against the TF-IDF/hybrid baseline using the evaluation utilities in `ml/matching`.
+
