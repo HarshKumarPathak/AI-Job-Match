@@ -126,6 +126,22 @@ export async function refreshRecommendations(
   );
 }
 
+export type RecommendationRun = {
+  run_id: string;
+  created_at: string;
+  recommendations: {
+    id: number;
+    job_id: number;
+    score: number;
+    matched_skills: string[];
+    missing_skills: string[];
+  }[];
+};
+
+export async function getRecommendationHistory(candidateId: number): Promise<RecommendationRun[]> {
+  return request<RecommendationRun[]>(`${API_URL}/recommendations/${candidateId}/history`, { cache: "no-store" });
+}
+
 export async function getSkillGaps(candidateId: number): Promise<SkillGap[]> {
   const data = await request<{
     candidate_id: number;
