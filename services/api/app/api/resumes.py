@@ -7,6 +7,7 @@ from app.models import Candidate, CandidateSkill, Resume, Skill
 from app.schemas.resume import ResumeRead
 from app.services.resume_parser import extract_text
 from app.services.skill_extractor import extract_skills
+from app.services.resume_profile import infer_profile
 
 router = APIRouter(prefix="/candidates/{candidate_id}/resumes", tags=["resumes"])
 
@@ -31,6 +32,7 @@ async def upload_resume(
         raise HTTPException(status_code=400, detail="Could not extract text from resume")
 
     skills = extract_skills(text)
+    inferred = infer_profile(text)
     resume = Resume(
         candidate_id=candidate_id,
         filename=file.filename or "resume",
@@ -54,6 +56,13 @@ async def upload_resume(
         )
         if existing is None:
             db.add(CandidateSkill(candidate_id=candidate_id, skill_id=skill.id))
+
+    if inferred["education"] and not candidate.education:
+        candidate.education = str(inferred["education"])
+    if inferred["experience_years"] and candidate.experience_years == 0:
+        candidate.experience_years = float(inferred["experience_years"])
+    if inferred["preferred_roles"] and not candidate.preferred_roles:
+        candidate.preferred_roles = "\n".join(inferred["preferred_roles"])
 
     db.commit()
     db.refresh(resume)
