@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/ai_job_match"
     redis_url: str = "redis://localhost:6379/0"
     secret_key: str = "change-me-in-development"
+    matching_text_model: str = "tfidf"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
