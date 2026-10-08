@@ -44,6 +44,19 @@ services:
       redis:
         condition: service_healthy
 
+  scheduler:
+    build:
+      context: ../..
+      dockerfile: services/worker/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/ai_job_match
+      REDIS_URL: redis://redis:6379/0
+      INGEST_INTERVAL_MINUTES: 360
+    command: ["python", "services/worker/scheduled_ingestion.py"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   web:
     build:
       context: ../..
