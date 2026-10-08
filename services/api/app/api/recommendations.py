@@ -3,10 +3,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.models import Recommendation
 from app.schemas.recommendation import RecommendationRead
 from app.services.recommendation_engine import recommend_jobs
 from app.services.recommendation_persistence import persist_recommendations
-from app.models import Recommendation
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
@@ -64,9 +64,10 @@ def get_recommendations(
     source: str | None = None,
     db: Session = Depends(get_db),
 ) -> list[RecommendationRead]:
-    return [_to_response(item) for item in _rank(
-        db, candidate_id, limit, q, remote, location, employment_type, source
-    )]
+    return [
+        _to_response(item)
+        for item in _rank(db, candidate_id, limit, q, remote, location, employment_type, source)
+    ]
 
 
 @router.post("/{candidate_id}/refresh", response_model=list[RecommendationRead])
@@ -97,17 +98,34 @@ def recommendation_history(
         select(Recommendation)
         .where(Recommendation.candidate_id == candidate_id)
         .order_by(Recommendation.created_at.desc())
-        .limit(limit * 20)
+        .limit(limit * 50)
     ).all()
-    return [
-        {
-            "id": row.id,
-            "run_id": row.run_id,
-            "job_id": row.job_id,
-            "score": row.score,
-            "matched_skills": [x.strip() for x in row.matched_skills.split(",") if x.strip()],
-            "missing_skills": [x.strip() for x in row.missing_skills.split(",") if x.strip()],
-            "created_at": row.created_at,
-        }
-        for row in rows
-    ]
+
+    runs: list[dict] = []
+    by_run: dict[str, dict] = {}
+
+    for row in rows:
+        run_id = row.run_id or f"legacy-{row.id}"
+        run = by_run.get(run_id)
+        if run is None:
+            if len(runs) >= limit:
+                continue
+            run = {
+                "run_id": run_id,
+                "created_at": row.created_at,
+                "recommendations": [],
+            }
+            by_run[run_id] = run
+            runs.append(run)
+
+        run["recommendations"].append(
+            {
+                "id": row.id,
+                "job_id": row.job_id,
+                "score": row.score,
+                "matched_skills": [x.strip() for x in row.matched_skills.split(",") if x.strip()],
+                "missing_skills": [x.strip() for x in row.missing_skills.split(",") if x.strip()],
+            }
+        )
+
+    return runs
