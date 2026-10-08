@@ -21,6 +21,7 @@ import {
   updateAlert,
   updateApplication,
   uploadResume,
+  logout,
   LearningResource,
   Recommendation,
   SkillGap,
@@ -197,6 +198,7 @@ export default function Dashboard() {
         <div className="heroActions">
           <button className="primary" onClick={() => setProfileOpen(true)}>Update profile</button>
           <button className="secondary" onClick={() => setAlertOpen(true)}>Job alert</button>
+          <button className="secondary" onClick={() => { logout(); window.location.reload(); }}>Sign out</button>
           <div className="heroStat">
             <strong>{jobs.length}</strong>
             <span>recommended jobs</span>
