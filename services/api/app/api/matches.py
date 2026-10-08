@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.services.auth import get_current_user, require_candidate_access
 from app.schemas.match import MatchRead
 from app.services.matching_db import match_candidate_to_job
 
@@ -13,7 +14,9 @@ def get_match(
     candidate_id: int,
     job_id: int,
     db: Session = Depends(get_db),
+    user = Depends(get_current_user),
 ) -> MatchRead:
+    require_candidate_access(candidate_id, user)
     try:
         result = match_candidate_to_job(db, candidate_id, job_id)
     except ValueError as exc:
