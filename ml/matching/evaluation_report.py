@@ -1,6 +1,6 @@
 """Reproducible ranking evaluation with TF-IDF, semantic and hybrid scorers."""
 
-from ml.matching.benchmark import EXAMPLES
+from ml.matching.benchmark import load_dataset
 from ml.matching.evaluation import ndcg_at_k, precision_at_k, recall_at_k, reciprocal_rank
 from ml.matching.semantic import similarity as semantic_similarity
 from ml.matching.tfidf_baseline import similarity as tfidf_similarity
@@ -10,7 +10,7 @@ def hybrid(candidate: str, job: str) -> float:
 
 def evaluate(name, scorer, k=3):
     metrics = []
-    for example in EXAMPLES:
+    for example in load_dataset():
         ranked = [
             str(i) for i, _ in sorted(
                 ((i, scorer(example.candidate, job)) for i, job in enumerate(example.jobs)),
