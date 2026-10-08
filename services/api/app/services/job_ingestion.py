@@ -41,6 +41,10 @@ def save_job(db: Session, payload: dict) -> Job:
         job.remote = bool(payload.get("remote", False))
         job.employment_type = payload.get("employment_type")
         job.apply_url = payload.get("apply_url")
+        job.salary_min = payload.get("salary_min")
+        job.salary_max = payload.get("salary_max")
+        job.experience_min_years = payload.get("experience_min_years")
+        job.experience_max_years = payload.get("experience_max_years")
 
     for skill_name in normalize_skills(payload.get("skills", [])):
         skill = db.scalar(select(Skill).where(Skill.name == skill_name))
