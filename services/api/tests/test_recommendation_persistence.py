@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
@@ -7,6 +9,7 @@ from app.services.job_ingestion import save_job
 from app.api.recommendations import recommendation_history
 from app.services.recommendation_engine import recommend_jobs
 from app.services.recommendation_persistence import persist_recommendations
+
 
 
 def test_recommendations_are_persisted_as_separate_runs() -> None:
@@ -67,6 +70,7 @@ def test_recommendations_are_persisted_as_separate_runs() -> None:
         assert history[0].run_id != history[1].run_id
 
 
+
 def test_recommendation_history_groups_rows_by_run() -> None:
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
@@ -97,6 +101,7 @@ def test_recommendation_history_groups_rows_by_run() -> None:
                 missing_skills="docker",
                 reasons="skill match",
                 run_id="run-a",
+                    created_at=datetime(2026, 1, 1, 12, 0, 0),
             ),
             Recommendation(
                 candidate_id=candidate.id,
@@ -115,6 +120,7 @@ def test_recommendation_history_groups_rows_by_run() -> None:
                 missing_skills="",
                 reasons="strong match",
                 run_id="run-b",
+                    created_at=datetime(2026, 1, 1, 12, 1, 0),
             ),
         ])
         db.commit()
