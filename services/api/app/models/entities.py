@@ -59,6 +59,10 @@ class Job(Base):
     employment_type: Mapped[str | None] = mapped_column(String(80))
     apply_url: Mapped[str | None] = mapped_column(Text)
     source: Mapped[str | None] = mapped_column(String(120), index=True)
+    salary_min: Mapped[float | None] = mapped_column(Float)
+    salary_max: Mapped[float | None] = mapped_column(Float)
+    experience_min_years: Mapped[float | None] = mapped_column(Float)
+    experience_max_years: Mapped[float | None] = mapped_column(Float)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
@@ -80,6 +84,7 @@ class Recommendation(Base):
     matched_skills: Mapped[str] = mapped_column(Text, default="")
     missing_skills: Mapped[str] = mapped_column(Text, default="")
     reasons: Mapped[str] = mapped_column(Text, default="")
+    run_id: Mapped[str | None] = mapped_column(String(36), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
