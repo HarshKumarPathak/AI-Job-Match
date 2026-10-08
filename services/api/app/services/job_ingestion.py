@@ -26,6 +26,10 @@ def save_job(db: Session, payload: dict) -> Job:
             employment_type=payload.get("employment_type"),
             apply_url=payload.get("apply_url"),
             source=source,
+            salary_min=payload.get("salary_min"),
+            salary_max=payload.get("salary_max"),
+            experience_min_years=payload.get("experience_min_years"),
+            experience_max_years=payload.get("experience_max_years"),
         )
         db.add(job)
         db.flush()
