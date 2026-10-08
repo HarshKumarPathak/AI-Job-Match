@@ -22,6 +22,8 @@ def _to_response(item) -> RecommendationRead:
         employment_type=item.job.employment_type,
         source=item.job.source,
         apply_url=item.job.apply_url,
+        salary_min=item.job.salary_min,
+        salary_max=item.job.salary_max,
         match_score=item.score,
         matched_skills=list(item.matched_skills),
         missing_skills=list(item.missing_skills),
