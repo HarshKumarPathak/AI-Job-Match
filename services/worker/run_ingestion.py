@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "api"))
 from app.services.job_aggregator import ingest_source
 from app.services.job_sources import DemoJobSource
 from app.services.arbeitnow_source import ArbeitnowJobSource
+from app.api.alerts import check_alert
 
 
 def main() -> None:
@@ -33,8 +34,11 @@ def main() -> None:
     with Session(engine) as db:
         count = ingest_source(db, source)
         db.commit()
+        alert_candidates = 0
+        for candidate_id in db.scalars(__import__("sqlalchemy").select(__import__("app.models", fromlist=["JobAlert"]).JobAlert.candidate_id).where(__import__("app.models", fromlist=["JobAlert"]).JobAlert.enabled.is_(True))).all():
+            alert_candidates += len(check_alert(candidate_id, db))
 
-    print(f"Ingested {count} jobs from {source.name}")
+    print(f"Ingested {count} jobs from {source.name}; {alert_candidates} alert matches found")
 
 
 if __name__ == "__main__":
