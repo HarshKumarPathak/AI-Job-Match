@@ -30,7 +30,7 @@ def run_report():
     results = [evaluate("tfidf", tfidf_similarity)]
     try:
         from ml.matching.semantic import similarity as semantic_similarity
-    except ImportError:
+    except (ImportError, RuntimeError):
         return results
 
     def hybrid(candidate: str, job: str) -> float:
