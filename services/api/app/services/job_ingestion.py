@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.models import Job, JobSkill, Skill
@@ -46,17 +46,28 @@ def save_job(db: Session, payload: dict) -> Job:
         job.experience_min_years = payload.get("experience_min_years")
         job.experience_max_years = payload.get("experience_max_years")
 
-    for skill_name in normalize_skills(payload.get("skills", [])):
+    normalized_skills = normalize_skills(payload.get("skills", []))
+    skill_ids: set[int] = set()
+
+    for skill_name in normalized_skills:
         skill = db.scalar(select(Skill).where(Skill.name == skill_name))
         if skill is None:
             skill = Skill(name=skill_name)
             db.add(skill)
             db.flush()
+        skill_ids.add(skill.id)
 
         exists = db.scalar(
             select(JobSkill).where(JobSkill.job_id == job.id, JobSkill.skill_id == skill.id)
         )
         if exists is None:
             db.add(JobSkill(job_id=job.id, skill_id=skill.id))
+
+    existing_relations = db.scalars(
+        select(JobSkill).where(JobSkill.job_id == job.id)
+    ).all()
+    for relation in existing_relations:
+        if relation.skill_id not in skill_ids:
+            db.delete(relation)
 
     return job
