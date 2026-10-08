@@ -36,6 +36,10 @@ class ArbeitnowJobSource:
                     "apply_url": item.get("url"),
                     "source": self.name,
                     "skills": normalize_skills(extract_skills(f"{title} {description}")),
+                    "salary_min": item.get("salary_min"),
+                    "salary_max": item.get("salary_max"),
+                    "experience_min_years": item.get("experience_min_years"),
+                    "experience_max_years": item.get("experience_max_years"),
                 }
             )
 
