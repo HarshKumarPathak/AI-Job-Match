@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 from ml.matching.evaluation import ndcg_at_k, precision_at_k, recall_at_k, reciprocal_rank
-from ml.matching.semantic import similarity as semantic_similarity
 from ml.matching.tfidf_baseline import similarity as tfidf_similarity
 
 
@@ -32,7 +31,13 @@ def evaluate(model_name: str, scorer) -> dict[str, float | str]:
 
 
 def run_benchmark() -> list[dict[str, float | str]]:
-    return [evaluate("tfidf", tfidf_similarity), evaluate("semantic", semantic_similarity)]
+    results = [evaluate("tfidf", tfidf_similarity)]
+    try:
+        from ml.matching.semantic import similarity as semantic_similarity
+    except ImportError:
+        return results
+    results.append(evaluate("semantic", semantic_similarity))
+    return results
 
 
 if __name__ == "__main__":
