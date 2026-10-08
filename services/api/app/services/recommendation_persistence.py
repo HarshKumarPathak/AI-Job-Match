@@ -1,4 +1,5 @@
-from sqlalchemy import delete
+from sqlalchemy import delete, select
+from uuid import uuid4
 from sqlalchemy.orm import Session
 
 from app.models import Recommendation
@@ -12,6 +13,7 @@ def persist_recommendations(
 ) -> int:
     """Replace the candidate's latest recommendation snapshot."""
     db.execute(delete(Recommendation).where(Recommendation.candidate_id == candidate_id))
+    run_id = str(uuid4())
 
     for item in recommendations:
         db.add(
@@ -22,6 +24,7 @@ def persist_recommendations(
                 matched_skills=", ".join(item.matched_skills),
                 missing_skills=", ".join(item.missing_skills),
                 reasons=" | ".join(item.reasons),
+                run_id=run_id,
             )
         )
 
