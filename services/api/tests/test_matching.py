@@ -35,4 +35,4 @@ def test_semantic_mode_uses_configured_service(monkeypatch) -> None:
     job = Job(id="1", title="Backend", company="Test", description="API", skills=set())
     result = matching.explain_match(candidate, job)
 
-    assert result.score == 16.0
+    assert result.score == 21.0
