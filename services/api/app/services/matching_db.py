@@ -61,5 +61,9 @@ def match_candidate_to_job(db: Session, candidate_id: int, job_id: int) -> Match
         employment_type=job.employment_type,
         apply_url=job.apply_url,
         source=job.source,
+        salary_min=job.salary_min,
+        salary_max=job.salary_max,
+        experience_min_years=job.experience_min_years,
+        experience_max_years=job.experience_max_years,
     )
     return explain_match(candidate, domain_job)
