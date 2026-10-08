@@ -56,8 +56,21 @@ def explain_match(candidate: CandidateProfile, job: Job) -> MatchResult:
             for location in candidate.preferred_locations
         )
 
+    experience_score = 0.0
+    if job.experience_min_years is not None or job.experience_max_years is not None:
+        minimum = job.experience_min_years if job.experience_min_years is not None else 0.0
+        maximum = job.experience_max_years
+        if candidate.experience_years >= minimum and (maximum is None or candidate.experience_years <= maximum):
+            experience_score = 1.0
+        elif candidate.experience_years < minimum and minimum > 0:
+            experience_score = max(0.0, candidate.experience_years / minimum)
+        else:
+            experience_score = 0.5
+    else:
+        experience_score = 1.0
+
     score = round(
-        (skill_score * 0.55 + text_score * 0.20 + role_score * 0.15 + location_score * 0.10) * 100,
+        (skill_score * 0.50 + text_score * 0.20 + role_score * 0.15 + location_score * 0.10 + experience_score * 0.05) * 100,
         2,
     )
 
@@ -70,6 +83,10 @@ def explain_match(candidate: CandidateProfile, job: Job) -> MatchResult:
         reasons.append("Preferred role appears in the job title")
     if location_score:
         reasons.append("Preferred location matches")
+    if experience_score == 1.0 and (job.experience_min_years is not None or job.experience_max_years is not None):
+        reasons.append("Experience level fits the role")
+    elif experience_score < 1.0 and (job.experience_min_years is not None or job.experience_max_years is not None):
+        reasons.append("Experience level is a partial fit")
     if missing:
         reasons.append(f"{len(missing)} skills need improvement")
 
