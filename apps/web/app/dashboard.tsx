@@ -265,7 +265,7 @@ export default function Dashboard() {
               <article className="jobCard" key={job.job_id}>
                 <div className="jobTop">
                   <div>
-                    <h3>{job.title}</h3>
+                    <h3><a className="jobTitleLink" href={`/jobs/${job.job_id}`}>{job.title}</a></h3>
                     <p>{job.company} · {job.location ?? "Location not listed"} · {job.employment_type ?? "Type not listed"} · {job.source ?? "Source not listed"}</p>
                   </div>
                   <span className="score">{Math.round(job.match_score)}% match</span>
