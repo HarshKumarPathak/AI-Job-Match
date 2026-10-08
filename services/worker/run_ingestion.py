@@ -8,6 +8,8 @@ import argparse
 import os
 import sys
 
+from sqlalchemy import select
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -17,6 +19,7 @@ from app.services.job_aggregator import ingest_source
 from app.services.job_sources import DemoJobSource
 from app.services.arbeitnow_source import ArbeitnowJobSource
 from app.api.alerts import check_alert
+from app.models import JobAlert
 
 
 def main() -> None:
@@ -35,7 +38,7 @@ def main() -> None:
         count = ingest_source(db, source)
         db.commit()
         alert_candidates = 0
-        for candidate_id in db.scalars(__import__("sqlalchemy").select(__import__("app.models", fromlist=["JobAlert"]).JobAlert.candidate_id).where(__import__("app.models", fromlist=["JobAlert"]).JobAlert.enabled.is_(True))).all():
+        for candidate_id in db.scalars(select(JobAlert.candidate_id).where(JobAlert.enabled.is_(True))).all():
             alert_candidates += len(check_alert(candidate_id, db))
 
     print(f"Ingested {count} jobs from {source.name}; {alert_candidates} alert matches found")
