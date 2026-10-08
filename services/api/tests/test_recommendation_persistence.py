@@ -49,7 +49,9 @@ def test_recommendations_can_be_persisted_as_latest_snapshot() -> None:
         assert rows[0].job_id == ranked[0].job.id
         assert rows[0].score == ranked[0].score
 
-        persist_recommendations(db, candidate.id, [])
-        assert db.scalars(
+        persist_recommendations(db, candidate.id, ranked)
+        history = db.scalars(
             select(Recommendation).where(Recommendation.candidate_id == candidate.id)
-        ).all() == []
+        ).all()
+        assert len(history) == 2
+        assert history[0].run_id != history[1].run_id
