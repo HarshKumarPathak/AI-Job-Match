@@ -89,6 +89,23 @@ export async function getRecommendations(
   );
 }
 
+export async function refreshRecommendations(
+  candidateId: number,
+  filters: { q?: string; remote?: boolean; location?: string; employmentType?: string; source?: string } = {},
+): Promise<Recommendation[]> {
+  const params = new URLSearchParams({ limit: "20" });
+  if (filters.q) params.set("q", filters.q);
+  if (filters.remote !== undefined) params.set("remote", String(filters.remote));
+  if (filters.location) params.set("location", filters.location);
+  if (filters.employmentType) params.set("employment_type", filters.employmentType);
+  if (filters.source) params.set("source", filters.source);
+
+  return request<Recommendation[]>(
+    `${API_URL}/recommendations/${candidateId}/refresh?${params.toString()}`,
+    { method: "POST" },
+  );
+}
+
 export async function getSkillGaps(candidateId: number): Promise<SkillGap[]> {
   const data = await request<{ candidate_id: number; analyzed_jobs: number; gaps: SkillGap[] }>(
     `${API_URL}/skill-gaps/${candidateId}?job_limit=10`,
