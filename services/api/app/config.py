@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     api_env: str = "development"
     api_host: str = "0.0.0.0"
     api_port: int = 8000
+    web_origin: str = "http://localhost:3000"
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/ai_job_match"
     redis_url: str = "redis://localhost:6379/0"
     secret_key: str = "change-me-in-development"
