@@ -154,6 +154,20 @@ export async function createCandidate(payload: {
   });
 }
 
+export type CandidateProfile = {
+  id: number;
+  name: string | null;
+  email: string | null;
+  preferred_roles: string[];
+  preferred_locations: string[];
+  experience_years: number;
+  education: string | null;
+};
+
+export async function getCandidate(candidateId: number): Promise<CandidateProfile> {
+  return request<CandidateProfile>(`${API_URL}/candidates/${candidateId}`, { cache: "no-store" });
+}
+
 export async function uploadResume(candidateId: number, file: File): Promise<void> {
   const form = new FormData();
   form.append("file", file);
