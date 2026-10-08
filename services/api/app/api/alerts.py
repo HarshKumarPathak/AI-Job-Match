@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.services.auth import get_current_user, require_candidate_access
 from app.models import Candidate, JobAlert
 from app.schemas.alert import AlertMatchRead, JobAlertCreate, JobAlertRead, JobAlertUpdate
 from app.services.alert_service import matching_alert_jobs
@@ -11,7 +12,8 @@ router = APIRouter(prefix="/alerts", tags=["alerts"])
 
 
 @router.post("", response_model=JobAlertRead, status_code=201)
-def create_alert(payload: JobAlertCreate, db: Session = Depends(get_db)) -> JobAlert:
+def create_alert(payload: JobAlertCreate, db: Session = Depends(get_db), user = Depends(get_current_user)) -> JobAlert:
+    require_candidate_access(payload.candidate_id, user)
     if db.get(Candidate, payload.candidate_id) is None:
         raise HTTPException(status_code=404, detail="Candidate not found")
 
