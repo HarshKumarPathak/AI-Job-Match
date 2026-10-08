@@ -20,7 +20,7 @@ EXAMPLES = (
 )
 
 
-def evaluate(model_name: str, scorer) -> dict[str, float]:
+def evaluate(model_name: str, scorer) -> dict[str, float | str]:
     rows = []
     for example in EXAMPLES:
         scored = [(str(index), scorer(example.candidate, job)) for index, job in enumerate(example.jobs)]
@@ -29,7 +29,7 @@ def evaluate(model_name: str, scorer) -> dict[str, float]:
     return {"model": model_name, **{metric: round(sum(row[metric] for row in rows) / len(rows), 4) for metric in rows[0]}}
 
 
-def run_benchmark() -> list[dict[str, float]]:
+def run_benchmark() -> list[dict[str, float | str]]:
     return [evaluate("tfidf", tfidf_similarity), evaluate("semantic", semantic_similarity)]
 
 
