@@ -10,7 +10,7 @@ def _load_model(model_name: str):
     except ImportError as exc:
         raise RuntimeError(
             "Semantic matching requires sentence-transformers. "
-            'Install with: pip install -e "[semantic]"'
+            'Install with: pip install -e "services/api[semantic]"'
         ) from exc
     return SentenceTransformer(model_name)
 
