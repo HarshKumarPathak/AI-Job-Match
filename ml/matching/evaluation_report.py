@@ -2,11 +2,8 @@
 
 from ml.matching.benchmark import load_dataset
 from ml.matching.evaluation import ndcg_at_k, precision_at_k, recall_at_k, reciprocal_rank
-from ml.matching.semantic import similarity as semantic_similarity
 from ml.matching.tfidf_baseline import similarity as tfidf_similarity
 
-def hybrid(candidate: str, job: str) -> float:
-    return 0.55 * tfidf_similarity(candidate, job) + 0.45 * semantic_similarity(candidate, job)
 
 def evaluate(name, scorer, k=3):
     metrics = []
@@ -30,11 +27,18 @@ def evaluate(name, scorer, k=3):
     }
 
 def run_report():
-    return [
-        evaluate("tfidf", tfidf_similarity),
-        evaluate("semantic", semantic_similarity),
-        evaluate("hybrid", hybrid),
-    ]
+    results = [evaluate("tfidf", tfidf_similarity)]
+    try:
+        from ml.matching.semantic import similarity as semantic_similarity
+    except ImportError:
+        return results
+
+    def hybrid(candidate: str, job: str) -> float:
+        return 0.55 * tfidf_similarity(candidate, job) + 0.45 * semantic_similarity(candidate, job)
+
+    results.append(evaluate("semantic", semantic_similarity))
+    results.append(evaluate("hybrid", hybrid))
+    return results
 
 if __name__ == "__main__":
     for row in run_report():
