@@ -83,6 +83,7 @@ def refresh_recommendations(
     employment_type: str | None = None,
     source: str | None = None,
     db: Session = Depends(get_db),
+    user = Depends(get_current_user),
 ) -> list[RecommendationRead]:
     require_candidate_access(candidate_id, user)
     recommendations = _rank(
@@ -97,7 +98,9 @@ def recommendation_history(
     candidate_id: int,
     limit: int = Query(default=10, ge=1, le=50),
     db: Session = Depends(get_db),
+    user = Depends(get_current_user),
 ):
+    require_candidate_access(candidate_id, user)
     rows = db.scalars(
         select(Recommendation)
         .where(Recommendation.candidate_id == candidate_id)
